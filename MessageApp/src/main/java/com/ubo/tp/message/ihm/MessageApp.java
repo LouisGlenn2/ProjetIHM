@@ -1,19 +1,24 @@
 package main.java.com.ubo.tp.message.ihm;
 
+import java.awt.BorderLayout;
+import java.awt.Font;
 import java.io.File;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-
+import javax.swing.SwingConstants;
 import main.java.com.ubo.tp.message.core.DataManager;
 import main.java.com.ubo.tp.message.core.DataManagerHelper;
 import main.java.com.ubo.tp.message.core.database.IDatabase;
 import main.java.com.ubo.tp.message.core.session.ISessionObserver;
 import main.java.com.ubo.tp.message.core.session.Session;
 import main.java.com.ubo.tp.message.datamodel.User;
+import main.java.com.ubo.tp.message.ihm.composant.UserView;
 import main.java.com.ubo.tp.message.ihm.controller.LoginController;
 import main.java.com.ubo.tp.message.ihm.controller.NavigationController;
 import main.java.com.ubo.tp.message.ihm.controller.SignupController;
+import main.java.com.ubo.tp.message.ihm.controller.UserListController;
 
 /**
  * Classe principale de l'application gérant la navigation et les sessions.
@@ -97,10 +102,27 @@ public class MessageApp implements ISessionObserver {
      * Affiche le contenu principal (après connexion).
      */
     private void showMainContent() {
-        // Pour l'instant, on affiche un panel vide ou un message de bienvenue
-        JPanel mainPanel = new JPanel();
-        mainPanel.add(new javax.swing.JLabel("Bienvenue sur MessageApp, " + mSession.getConnectedUser().getName()));
-        
+        // Création du contrôleur pour la liste des utilisateurs
+        UserListController userListController = new UserListController(mDatabase);
+    
+        // Création du panneau principal
+        JPanel mainPanel = new JPanel(new BorderLayout());
+    
+        // Ajout de la vue de la liste des utilisateurs sur le côté gauche
+        mainPanel.add(userListController.getListUserView(), BorderLayout.WEST);
+    
+        // Ajout d'un message de bienvenue
+        JLabel welcomeLabel = new JLabel("Bienvenue, " + mSession.getConnectedUser().getName() + " !");
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        mainPanel.add(welcomeLabel, BorderLayout.NORTH);
+    
+        // Ajout d'un panneau central pour le contenu principal
+        JPanel contentPanel = new JPanel();
+        contentPanel.add(new JLabel("Contenu principal ici"));
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
+    
+        // Affichage du panneau principal
         mNavigationController.showPage(mainPanel);
     }
 
