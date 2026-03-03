@@ -1,0 +1,114 @@
+package main.java.com.ubo.tp.message.ihm;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.net.URL;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
+/**
+ * Classe de la vue principale de l'application.
+ */
+public class MessageAppMainView extends JFrame {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public MessageAppMainView() {
+		this.initGUI();
+	}
+	
+	
+	public void setContent(JPanel newPanel) {
+	    this.getContentPane().removeAll();
+	    this.add(newPanel, BorderLayout.CENTER);
+	    this.revalidate();
+	    this.repaint();
+	}
+
+	/**
+	 * Initialisation de l'interface graphique.
+	 */
+	private void initGUI() {
+		this.setTitle("Messagerie UBO");
+		ImageIcon logo = new ImageIcon("C:\\Ihm\\MessageApp\\bin\\main\\resources\\images\\logo_20.png");
+		if (logo != null) {
+			this.setIconImage(logo.getImage());
+		}
+
+		this.setSize(new Dimension(800, 600));
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setLocationRelativeTo(null);
+		this.setJMenuBar(this.createMenuBar());
+	}
+
+	/**
+	 * Affiche la fenêtre de manière thread-safe.
+	 */
+	public void showGUI() {
+		SwingUtilities.invokeLater(() -> {
+			this.setVisible(true);
+		});
+	}
+
+	/**
+	 * Crée la barre de menu avec les icônes demandées.
+	 */
+	private JMenuBar createMenuBar() {
+		JMenuBar menuBar = new JMenuBar();
+
+		JMenu menuFile = new JMenu("Fichier");
+		JMenuItem itemExit = new JMenuItem("Quitter",new ImageIcon("C:\\Ihm\\MessageApp\\bin\\main\\resources\\images\\exitIcon_20.png"));
+		itemExit.setToolTipText("Fermer l'application");
+		itemExit.addActionListener(e -> System.exit(0));
+		menuFile.add(itemExit);
+
+		JMenu menuHelp = new JMenu("?");
+		JMenuItem itemAbout = new JMenuItem("À propos", new ImageIcon("C:\\Ihm\\MessageApp\\bin\\main\\resources\\images\\editIcon_20.png"));
+		itemAbout.addActionListener(e -> showAboutDialog());
+		menuHelp.add(itemAbout);
+
+		menuBar.add(menuFile);
+		menuBar.add(menuHelp);
+		return menuBar;
+	}
+
+	/**
+	 * Affiche la boîte de dialogue 'À propos'.
+	 */
+	private void showAboutDialog() {
+		JOptionPane.showMessageDialog(this, 
+				"UBO M2-TIIL\nDépartement Informatique", 
+				"À propos",
+				JOptionPane.INFORMATION_MESSAGE, 
+				new ImageIcon("C:\\Ihm\\MessageApp\\bin\\main\\resources\\images\\logo_50.png"));
+	}
+
+	/**
+	 * Charge une icône depuis les ressources.
+	 */
+	@SuppressWarnings("unused")
+	private ImageIcon loadIcon(String path) {
+		System.out.println("DEBUG: Root Path: " + getClass().getResource("/")); 
+	    URL imgURL = getClass().getResource(path);
+	    if (imgURL == null) {
+	        System.err.println("ERREUR: Image non trouvée au chemin: " + path);
+	    }
+		return (imgURL != null) ? new ImageIcon(imgURL) : null;
+	}
+	
+	public void setMainComponent(JPanel panel) {
+	    this.getContentPane().removeAll();
+	    this.add(panel);
+	    this.revalidate();
+	    this.repaint();
+	}
+}
