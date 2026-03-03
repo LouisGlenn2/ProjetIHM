@@ -2,7 +2,6 @@ package main.java.com.ubo.tp.message.core.session;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import main.java.com.ubo.tp.message.datamodel.User;
 
 /**

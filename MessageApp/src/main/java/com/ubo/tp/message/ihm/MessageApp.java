@@ -14,7 +14,6 @@ import main.java.com.ubo.tp.message.core.database.IDatabase;
 import main.java.com.ubo.tp.message.core.session.ISessionObserver;
 import main.java.com.ubo.tp.message.core.session.Session;
 import main.java.com.ubo.tp.message.datamodel.User;
-import main.java.com.ubo.tp.message.ihm.composant.UserView;
 import main.java.com.ubo.tp.message.ihm.controller.LoginController;
 import main.java.com.ubo.tp.message.ihm.controller.NavigationController;
 import main.java.com.ubo.tp.message.ihm.controller.SignupController;
@@ -66,7 +65,9 @@ public class MessageApp implements ISessionObserver {
      */
     protected void initGui() {
         this.mMainView = new MessageAppMainView();
+        this.mMainView.setLogoutCallback(this::handleLogout);
         this.mNavigationController = new NavigationController(mMainView);
+        
         
         // Initialisation des contrôleurs avec des callbacks de navigation
         this.mLoginController = new LoginController(mDatabase, mSession, this::showSignupView);
@@ -80,6 +81,9 @@ public class MessageApp implements ISessionObserver {
         if (this.mMainView != null) {
             this.mMainView.setVisible(true);
         }
+    }
+    private void handleLogout() {
+        mSession.disconnect(); // Déconnecte l'utilisateur
     }
 
     // --- Méthodes de Navigation ---
@@ -137,7 +141,7 @@ public class MessageApp implements ISessionObserver {
     @Override
     public void notifyLogout() {
         System.out.println("Utilisateur déconnecté");
-        showLoginView();
+        showLoginView(); // Redirige vers la page de connexion
     }
 
     // --- Gestion du Répertoire ---

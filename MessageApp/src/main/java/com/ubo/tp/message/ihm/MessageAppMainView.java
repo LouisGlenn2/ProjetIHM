@@ -62,15 +62,31 @@ public class MessageAppMainView extends JFrame {
 	/**
 	 * Crée la barre de menu avec les icônes demandées.
 	 */
+	private Runnable onLogout;
+
+	public void setLogoutCallback(Runnable onLogout) {
+		this.onLogout = onLogout;
+	}
+
+
+
 	private JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
 
-		JMenu menuFile = new JMenu("Fichier");
+		JMenu menuFile = new JMenu("Mon compte");
 		JMenuItem itemExit = new JMenuItem("Quitter",new ImageIcon("C:\\Ihm\\MessageApp\\bin\\main\\resources\\images\\exitIcon_20.png"));
 		itemExit.setToolTipText("Fermer l'application");
 		itemExit.addActionListener(e -> System.exit(0));
 		menuFile.add(itemExit);
-
+		// Bouton "Déconnexion"
+		JMenuItem itemLogout = new JMenuItem("Déconnexion", new ImageIcon("C:\\Ihm\\MessageApp\\bin\\main\\resources\\images\\logoutIcon_20.png"));
+		itemLogout.setToolTipText("Se déconnecter");
+		itemLogout.addActionListener(e -> {
+			if (onLogout != null) {
+				onLogout.run(); // Appelle le callback de déconnexion
+			}
+		});
+		menuFile.add(itemLogout);
 		JMenu menuHelp = new JMenu("?");
 		JMenuItem itemAbout = new JMenuItem("À propos", new ImageIcon("C:\\Ihm\\MessageApp\\bin\\main\\resources\\images\\editIcon_20.png"));
 		itemAbout.addActionListener(e -> showAboutDialog());
