@@ -1,8 +1,18 @@
 package main.java.com.ubo.tp.message.ihm.controller;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+
+import main.java.com.ubo.tp.message.core.DataManager;
 import main.java.com.ubo.tp.message.core.database.IDatabase;
 import main.java.com.ubo.tp.message.core.database.IDatabaseObserver;
+import main.java.com.ubo.tp.message.core.session.ISession;
 import main.java.com.ubo.tp.message.datamodel.Channel;
 import main.java.com.ubo.tp.message.datamodel.Message;
 import main.java.com.ubo.tp.message.datamodel.User;
@@ -10,77 +20,85 @@ import main.java.com.ubo.tp.message.ihm.composant.ChannelListView;
 
 public class ChannelController implements IDatabaseObserver {
     private final IDatabase database;
+    private final DataManager dataManager;
     private final ChannelListView view;
+    private final ISession session;
+    
     private MessageController messageListController;
+    private UserListController userListController; // REFERENCE AJOUTÉE
 
-    public ChannelController(IDatabase database) {
+    public ChannelController(IDatabase database, DataManager data, ISession session) {
         this.database = database;
+        this.dataManager = data;
+        this.session = session;
         this.view = new ChannelListView(this);
         this.database.addObserver(this);
     }
 
-    public Set<Channel> getChannels() {
-        return database.getChannels();
+    public void setUserListController(UserListController ulc) {
+        this.userListController = ulc;
     }
+
     public void setMessageListController(MessageController mlc) {
         this.messageListController = mlc;
     }
 
     public void selectChannel(Channel channel) {
+        // Filtrer les messages
         if (messageListController != null) {
             messageListController.setFilter("#" + channel.getName());
         }
+        // Filtrer les utilisateurs à droite
+        if (userListController != null) {
+            userListController.updateViewForChannel(channel);
+        }
     }
 
-    
-
-    public ChannelListView getView() {
-        return view;
+    public void createChannel(String name, List<User> selectedUsers) {
+        User connectedUser = session.getConnectedUser();
+        if (connectedUser != null && name != null && !name.trim().isEmpty()) {
+            Channel newChannel = (selectedUsers == null || selectedUsers.isEmpty()) 
+                ? new Channel(connectedUser, name)
+                : new Channel(connectedUser, name, selectedUsers);
+            dataManager.sendChannel(newChannel);
+        }
     }
 
-	@Override
-	public void notifyMessageAdded(Message addedMessage) {
-		this.view.refresh();		
-	}
+    public void openEditChannelDialog(Channel channel) {
+        DefaultListModel<User> listModel = new DefaultListModel<>();
+        List<User> allUsers = new ArrayList<>(database.getUsers());
+        for (User u : allUsers) listModel.addElement(u);
 
-	@Override
-	public void notifyMessageDeleted(Message deletedMessage) {
-		this.view.refresh();		
-	}
+        JList<User> userJList = new JList<>(listModel);
+        userJList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-	@Override
-	public void notifyMessageModified(Message modifiedMessage) {
-		this.view.refresh();		
-	}
+        List<User> currentMembers = channel.getUsers();
+        int[] indices = currentMembers.stream()
+                .mapToInt(allUsers::indexOf)
+                .filter(i -> i != -1).toArray();
+        userJList.setSelectedIndices(indices);
 
-	@Override
-	public void notifyUserAdded(User addedUser) {
-		this.view.refresh();		
-	}
+        int result = JOptionPane.showConfirmDialog(null, new JScrollPane(userJList), 
+                "Gérer les membres de " + channel.getName(), JOptionPane.OK_CANCEL_OPTION);
 
-	@Override
-	public void notifyUserDeleted(User deletedUser) {
-		this.view.refresh();		
-	}
+        if (result == JOptionPane.OK_OPTION) {
+            Channel updatedChannel = new Channel(channel.getUuid(), channel.getCreator(), channel.getName(), userJList.getSelectedValuesList());
+            this.dataManager.sendChannel(updatedChannel);
+        }
+    }
 
-	@Override
-	public void notifyUserModified(User modifiedUser) {
-		this.view.refresh();		
-	}
+    public Set<Channel> getChannels() { return database.getChannels(); }
+    public User getConnectedUser() { return session.getConnectedUser(); }
+    public ChannelListView getView() { return view; }
 
-	@Override
-	public void notifyChannelAdded(Channel addedChannel) {
-		this.view.refresh();
-		
-	}
-
-	@Override
-	public void notifyChannelDeleted(Channel deletedChannel) {
-		this.view.refresh();		
-	}
-
-	@Override
-	public void notifyChannelModified(Channel modifiedChannel) {
-		this.view.refresh();		
-	}
+    // Notifications (simplifié : rafraîchir la vue des canaux)
+    @Override public void notifyChannelAdded(Channel c) { view.refresh(); }
+    @Override public void notifyChannelDeleted(Channel c) { view.refresh(); }
+    @Override public void notifyChannelModified(Channel c) { view.refresh(); }
+    @Override public void notifyUserAdded(User u) { view.refresh(); }
+    @Override public void notifyUserDeleted(User u) { view.refresh(); }
+    @Override public void notifyUserModified(User u) { view.refresh(); }
+    @Override public void notifyMessageAdded(Message m) { view.refresh(); }
+    @Override public void notifyMessageDeleted(Message m) { view.refresh(); }
+    @Override public void notifyMessageModified(Message m) { view.refresh(); }
 }

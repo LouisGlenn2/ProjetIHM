@@ -19,7 +19,6 @@ public class MessageListView extends JPanel {
         this.controller = controller;
         this.setLayout(new BorderLayout());
 
-        // --- LISTE DES MESSAGES (Centre) ---
         listContainer = new JPanel();
         listContainer.setLayout(new BoxLayout(listContainer, BoxLayout.Y_AXIS));
         listContainer.setBackground(new Color(245, 245, 245));

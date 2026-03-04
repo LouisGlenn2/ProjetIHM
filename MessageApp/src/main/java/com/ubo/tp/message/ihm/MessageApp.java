@@ -1,13 +1,8 @@
 package main.java.com.ubo.tp.message.ihm;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
 import java.io.File;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import main.java.com.ubo.tp.message.core.DataManager;
 import main.java.com.ubo.tp.message.core.DataManagerHelper;
 import main.java.com.ubo.tp.message.core.database.IDatabase;
@@ -78,7 +73,7 @@ public class MessageApp implements ISessionObserver {
         this.mLoginController = new LoginController(mDatabase, mSession, this::showSignupView);
         this.mSignupController = new SignupController(mDatabase,mDataManager, this::showLoginView);
         this.mMessageController=new MessageController(mDatabase,mSession);
-        this.mChannelController = new ChannelController(mDatabase);
+        this.mChannelController = new ChannelController(mDatabase,mDataManager,mSession);
         this.mUserListController = new UserListController(mDatabase);
         
         // Affichage de la vue par défaut
@@ -114,7 +109,8 @@ public class MessageApp implements ISessionObserver {
      * Affiche le contenu principal (après connexion).
      */
     private void showMainContent() {
-      	mChannelController.setMessageListController(mMessageController);
+    	mChannelController.setMessageListController(mMessageController);
+        mChannelController.setUserListController(mUserListController);
     	mChannelController.getView().refresh();
         MainContentView mainContent = new MainContentView(
         	mChannelController.getView(), 

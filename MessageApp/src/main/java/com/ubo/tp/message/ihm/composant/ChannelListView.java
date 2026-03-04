@@ -7,32 +7,49 @@ import java.awt.*;
 import main.java.com.ubo.tp.message.datamodel.Channel;
 import main.java.com.ubo.tp.message.ihm.controller.ChannelController;
 
+@SuppressWarnings("unused")
 public class ChannelListView extends JPanel {
-    private final ChannelController controller;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final ChannelController controller;
     private final JPanel listPanel;
 
+ // Dans ChannelListView.java
     public ChannelListView(ChannelController controller) {
         this.controller = controller;
         this.setLayout(new BorderLayout());
-        this.setPreferredSize(new Dimension(200, 0)); // Largeur de la sidebar
+        this.setPreferredSize(new Dimension(200, 0));
 
-        // Titre de la section
-        JLabel title = new JLabel(" CANAUX", SwingConstants.LEFT);
-        title.setOpaque(true);
-        title.setBackground(new Color(230, 230, 230));
+        // --- EN-TÊTE AVEC BOUTON + ---
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(230, 230, 230));
+        
+        JLabel title = new JLabel(" CANAUX");
         title.setFont(new Font("Arial", Font.BOLD, 12));
-        title.setBorder(new EmptyBorder(5, 5, 5, 5));
-        this.add(title, BorderLayout.NORTH);
+        headerPanel.add(title, BorderLayout.WEST);
 
-        // Liste des canaux
+        JButton btnAdd = new JButton("+");
+        btnAdd.setToolTipText("Créer un canal");
+        btnAdd.addActionListener(e -> openCreationDialog());
+        headerPanel.add(btnAdd, BorderLayout.EAST);
+
+        this.add(headerPanel, BorderLayout.NORTH);
+
+        // --- LISTE ---
         listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
-        
-        JScrollPane scrollPane = new JScrollPane(listPanel);
-        scrollPane.setBorder(null);
-        this.add(scrollPane, BorderLayout.CENTER);
+        this.add(new JScrollPane(listPanel), BorderLayout.CENTER);
 
         refresh();
+    }
+
+    private void openCreationDialog() {
+        String name = JOptionPane.showInputDialog(this, "Nom du canal :");
+        if (name != null && !name.isEmpty()) {
+            controller.createChannel(name, null);
+        }
     }
 
     public void refresh() {
