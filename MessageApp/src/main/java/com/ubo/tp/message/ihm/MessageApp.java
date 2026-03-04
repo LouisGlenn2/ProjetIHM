@@ -14,7 +14,10 @@ import main.java.com.ubo.tp.message.core.database.IDatabase;
 import main.java.com.ubo.tp.message.core.session.ISessionObserver;
 import main.java.com.ubo.tp.message.core.session.Session;
 import main.java.com.ubo.tp.message.datamodel.User;
+import main.java.com.ubo.tp.message.ihm.composant.MainContentView;
+import main.java.com.ubo.tp.message.ihm.controller.ChannelController;
 import main.java.com.ubo.tp.message.ihm.controller.LoginController;
+import main.java.com.ubo.tp.message.ihm.controller.MessageController;
 import main.java.com.ubo.tp.message.ihm.controller.NavigationController;
 import main.java.com.ubo.tp.message.ihm.controller.SignupController;
 import main.java.com.ubo.tp.message.ihm.controller.UserListController;
@@ -32,7 +35,9 @@ public class MessageApp implements ISessionObserver {
     protected NavigationController mNavigationController;
     protected LoginController mLoginController;
     protected SignupController mSignupController;
-
+    protected ChannelController mChannelController;
+    protected MessageController mMessageController;
+    protected UserListController mUserListController;
     public MessageApp(DataManager dataManager, IDatabase database) {
         this.mDataManager = dataManager;
         this.mDatabase = database;
@@ -72,7 +77,10 @@ public class MessageApp implements ISessionObserver {
         // Initialisation des contrôleurs avec des callbacks de navigation
         this.mLoginController = new LoginController(mDatabase, mSession, this::showSignupView);
         this.mSignupController = new SignupController(mDatabase,mDataManager, this::showLoginView);
-
+        this.mMessageController=new MessageController(mDatabase,mSession);
+        this.mChannelController = new ChannelController(mDatabase);
+        this.mUserListController = new UserListController(mDatabase);
+        
         // Affichage de la vue par défaut
         this.showLoginView();
         this.mMainView.showGUI();
@@ -106,17 +114,18 @@ public class MessageApp implements ISessionObserver {
      * Affiche le contenu principal (après connexion).
      */
     private void showMainContent() {
-        // Création du contrôleur pour la liste des utilisateurs
-        UserListController userListController = new UserListController(mDatabase);
+      	mChannelController.setMessageListController(mMessageController);
+    	mChannelController.getView().refresh();
+        MainContentView mainContent = new MainContentView(
+        	mChannelController.getView(), 
+            mMessageController.getView(),
+            mUserListController.getView()
+        );
+       
     
-        // Création du panneau principal
-        JPanel mainPanel = new JPanel(new BorderLayout());
-    
-        // Ajout de la vue de la liste des utilisateurs sur le côté gauche
-        mainPanel.add(userListController.getListUserView(), BorderLayout.WEST);
     
         // Ajout d'un message de bienvenue
-        JLabel welcomeLabel = new JLabel("Bienvenue, " + mSession.getConnectedUser().getName() + " !");
+       /* JLabel welcomeLabel = new JLabel("Bienvenue, " + mSession.getConnectedUser().getName() + " !");
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 16));
         welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
         mainPanel.add(welcomeLabel, BorderLayout.NORTH);
@@ -126,8 +135,8 @@ public class MessageApp implements ISessionObserver {
         contentPanel.add(new JLabel("Contenu principal ici"));
         mainPanel.add(contentPanel, BorderLayout.CENTER);
     
-        // Affichage du panneau principal
-        mNavigationController.showPage(mainPanel);
+        // Affichage du panneau principal*/
+        mNavigationController.showPage(mainContent);
     }
 
     // --- Gestion de la Session (ISessionObserver) ---
