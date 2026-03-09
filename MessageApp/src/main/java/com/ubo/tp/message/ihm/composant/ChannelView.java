@@ -1,9 +1,9 @@
-package main.java.com.ubo.tp.message.ihm.composant;
+package com.ubo.tp.message.ihm.composant;
 
 import javax.swing.*;
 import java.awt.*;
-import main.java.com.ubo.tp.message.datamodel.Channel;
-import main.java.com.ubo.tp.message.ihm.controller.ChannelController;
+import com.ubo.tp.message.datamodel.Channel;
+import com.ubo.tp.message.ihm.controller.ChannelController;
 
 public class ChannelView extends JPanel {
     private static final long serialVersionUID = 1L;

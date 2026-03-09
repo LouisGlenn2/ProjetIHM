@@ -1,8 +1,8 @@
-package main.java.com.ubo.tp.message.ihm.composant;
+package com.ubo.tp.message.ihm.composant;
 
 import javax.swing.*;
 import java.awt.*;
-import main.java.com.ubo.tp.message.ihm.controller.SignupController;
+import com.ubo.tp.message.ihm.controller.SignupController;
 
 public class SignupView extends JPanel {
     private final SignupController controller;

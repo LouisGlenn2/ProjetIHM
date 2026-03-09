@@ -1,4 +1,4 @@
-package main.java.com.ubo.tp.message.core.directory;
+package com.ubo.tp.message.core.directory;
 
 /**
  * Interface de l'entité responsable de la surveillance d'un répertoire.

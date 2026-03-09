@@ -1,11 +1,11 @@
-package main.java.com.ubo.tp.message.ihm.composant;
+package com.ubo.tp.message.ihm.composant;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
-import main.java.com.ubo.tp.message.datamodel.Message;
-import main.java.com.ubo.tp.message.ihm.controller.MessageController;
+import com.ubo.tp.message.datamodel.Message;
+import com.ubo.tp.message.ihm.controller.MessageController;
 
 public class MessageListView extends JPanel {
     private final MessageController controller;

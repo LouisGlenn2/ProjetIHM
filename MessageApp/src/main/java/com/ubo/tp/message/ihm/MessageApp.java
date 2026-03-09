@@ -1,21 +1,21 @@
-package main.java.com.ubo.tp.message.ihm;
+package com.ubo.tp.message.ihm;
 
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import main.java.com.ubo.tp.message.core.DataManager;
-import main.java.com.ubo.tp.message.core.DataManagerHelper;
-import main.java.com.ubo.tp.message.core.database.IDatabase;
-import main.java.com.ubo.tp.message.core.session.ISessionObserver;
-import main.java.com.ubo.tp.message.core.session.Session;
-import main.java.com.ubo.tp.message.datamodel.User;
-import main.java.com.ubo.tp.message.ihm.composant.MainContentView;
-import main.java.com.ubo.tp.message.ihm.controller.ChannelController;
-import main.java.com.ubo.tp.message.ihm.controller.LoginController;
-import main.java.com.ubo.tp.message.ihm.controller.MessageController;
-import main.java.com.ubo.tp.message.ihm.controller.NavigationController;
-import main.java.com.ubo.tp.message.ihm.controller.SignupController;
-import main.java.com.ubo.tp.message.ihm.controller.UserListController;
+import com.ubo.tp.message.core.DataManager;
+import com.ubo.tp.message.core.DataManagerHelper;
+import com.ubo.tp.message.core.database.IDatabase;
+import com.ubo.tp.message.core.session.ISessionObserver;
+import com.ubo.tp.message.core.session.Session;
+import com.ubo.tp.message.datamodel.User;
+import com.ubo.tp.message.ihm.composant.MainContentView;
+import com.ubo.tp.message.ihm.controller.ChannelController;
+import com.ubo.tp.message.ihm.controller.LoginController;
+import com.ubo.tp.message.ihm.controller.MessageController;
+import com.ubo.tp.message.ihm.controller.NavigationController;
+import com.ubo.tp.message.ihm.controller.SignupController;
+import com.ubo.tp.message.ihm.controller.UserListController;
 
 /**
  * Classe principale de l'application gérant la navigation et les sessions.

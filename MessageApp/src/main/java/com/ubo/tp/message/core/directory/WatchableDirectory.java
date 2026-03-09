@@ -1,4 +1,4 @@
-package main.java.com.ubo.tp.message.core.directory;
+package com.ubo.tp.message.core.directory;
 
 import java.io.File;
 import java.util.HashMap;

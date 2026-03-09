@@ -1,13 +1,13 @@
-package main.java.com.ubo.tp.message.ihm.controller;
+package com.ubo.tp.message.ihm.controller;
 
 
 
 import java.util.Set;
 
-import main.java.com.ubo.tp.message.core.database.IDatabase;
-import main.java.com.ubo.tp.message.core.session.Session;
-import main.java.com.ubo.tp.message.datamodel.User;
-import main.java.com.ubo.tp.message.ihm.composant.LoginView;
+import com.ubo.tp.message.core.database.IDatabase;
+import com.ubo.tp.message.core.session.Session;
+import com.ubo.tp.message.datamodel.User;
+import com.ubo.tp.message.ihm.composant.LoginView;
 
 public class LoginController {
 

@@ -1,8 +1,8 @@
-package main.java.com.ubo.tp.message.ihm.composant;
+package com.ubo.tp.message.ihm.composant;
 
 import javax.swing.*;
 import java.awt.*;
-import main.java.com.ubo.tp.message.datamodel.User;
+import com.ubo.tp.message.datamodel.User;
 
 /**
  * Vue du contenu principal après connexion

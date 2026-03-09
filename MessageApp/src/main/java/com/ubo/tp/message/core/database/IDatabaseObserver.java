@@ -1,8 +1,8 @@
-package main.java.com.ubo.tp.message.core.database;
+package com.ubo.tp.message.core.database;
 
-import main.java.com.ubo.tp.message.datamodel.Channel;
-import main.java.com.ubo.tp.message.datamodel.Message;
-import main.java.com.ubo.tp.message.datamodel.User;
+import com.ubo.tp.message.datamodel.Channel;
+import com.ubo.tp.message.datamodel.Message;
+import com.ubo.tp.message.datamodel.User;
 
 /**
  * Interface des observateurs des modifications de la base de données.

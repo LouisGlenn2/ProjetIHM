@@ -1,6 +1,6 @@
-package main.java.com.ubo.tp.message.core.session;
+package com.ubo.tp.message.core.session;
 
-import main.java.com.ubo.tp.message.datamodel.User;
+import com.ubo.tp.message.datamodel.User;
 
 /**
  * Interface d'observation de la session.

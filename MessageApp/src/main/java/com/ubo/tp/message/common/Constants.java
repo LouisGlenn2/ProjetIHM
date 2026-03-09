@@ -1,8 +1,8 @@
-package main.java.com.ubo.tp.message.common;
+package com.ubo.tp.message.common;
 
 import java.util.UUID;
 
-import main.java.com.ubo.tp.message.datamodel.User;
+import com.ubo.tp.message.datamodel.User;
 
 /**
  * Classe de contantes de l'appli.

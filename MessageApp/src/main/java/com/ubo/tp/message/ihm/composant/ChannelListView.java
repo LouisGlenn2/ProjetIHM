@@ -1,12 +1,12 @@
-package main.java.com.ubo.tp.message.ihm.composant;
+package com.ubo.tp.message.ihm.composant;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import java.awt.*;
-import main.java.com.ubo.tp.message.datamodel.Channel;
-import main.java.com.ubo.tp.message.datamodel.User;
-import main.java.com.ubo.tp.message.ihm.controller.ChannelController;
+import com.ubo.tp.message.datamodel.Channel;
+import com.ubo.tp.message.datamodel.User;
+import com.ubo.tp.message.ihm.controller.ChannelController;
 
 @SuppressWarnings("unused")
 public class ChannelListView extends JPanel {

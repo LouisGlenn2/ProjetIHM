@@ -1,4 +1,4 @@
-package main.java.com.ubo.tp.message.ihm.controller;
+package com.ubo.tp.message.ihm.controller;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.SwingUtilities;
 
-import main.java.com.ubo.tp.message.core.database.IDatabase;
-import main.java.com.ubo.tp.message.core.database.IDatabaseObserver;
-import main.java.com.ubo.tp.message.datamodel.Channel;
-import main.java.com.ubo.tp.message.datamodel.Message;
-import main.java.com.ubo.tp.message.datamodel.User;
-import main.java.com.ubo.tp.message.ihm.composant.ListUserView;
+import com.ubo.tp.message.core.database.IDatabase;
+import com.ubo.tp.message.core.database.IDatabaseObserver;
+import com.ubo.tp.message.datamodel.Channel;
+import com.ubo.tp.message.datamodel.Message;
+import com.ubo.tp.message.datamodel.User;
+import com.ubo.tp.message.ihm.composant.ListUserView;
 
 public class UserListController implements IDatabaseObserver {
     private final IDatabase database;

@@ -1,10 +1,10 @@
-package main.java.com.ubo.tp.message.core.database;
+package com.ubo.tp.message.core.database;
 
 import java.util.Set;
 
-import main.java.com.ubo.tp.message.datamodel.Channel;
-import main.java.com.ubo.tp.message.datamodel.Message;
-import main.java.com.ubo.tp.message.datamodel.User;
+import com.ubo.tp.message.datamodel.Channel;
+import com.ubo.tp.message.datamodel.Message;
+import com.ubo.tp.message.datamodel.User;
 
 /**
  * Interface de la base de données de l'application.

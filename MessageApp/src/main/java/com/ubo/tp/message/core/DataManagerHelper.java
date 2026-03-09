@@ -1,6 +1,6 @@
-package main.java.com.ubo.tp.message.core; // Même package que DataManager !
+package com.ubo.tp.message.core; // Même package que DataManager !
 
-import main.java.com.ubo.tp.message.core.database.IDatabaseObserver;
+import com.ubo.tp.message.core.database.IDatabaseObserver;
 
 public class DataManagerHelper {
     /**

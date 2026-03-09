@@ -1,4 +1,4 @@
-package main.java.com.ubo.tp.message.datamodel;
+package com.ubo.tp.message.datamodel;
 
 import java.util.Observable;
 import java.util.UUID;

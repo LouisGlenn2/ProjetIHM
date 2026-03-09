@@ -1,10 +1,10 @@
-package main.java.com.ubo.tp.message.ihm.controller;
+package com.ubo.tp.message.ihm.controller;
 
 import java.util.UUID;
-import main.java.com.ubo.tp.message.core.DataManager;
-import main.java.com.ubo.tp.message.core.database.IDatabase;
-import main.java.com.ubo.tp.message.datamodel.User;
-import main.java.com.ubo.tp.message.ihm.composant.SignupView;
+import com.ubo.tp.message.core.DataManager;
+import com.ubo.tp.message.core.database.IDatabase;
+import com.ubo.tp.message.datamodel.User;
+import com.ubo.tp.message.ihm.composant.SignupView;
 
 public class SignupController {
     private final SignupView signupView;

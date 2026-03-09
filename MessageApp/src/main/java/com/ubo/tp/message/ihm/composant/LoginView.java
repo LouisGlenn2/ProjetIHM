@@ -1,10 +1,10 @@
-package main.java.com.ubo.tp.message.ihm.composant;
+package com.ubo.tp.message.ihm.composant;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.UUID;
-import main.java.com.ubo.tp.message.datamodel.User;
-import main.java.com.ubo.tp.message.ihm.controller.LoginController;
+import com.ubo.tp.message.datamodel.User;
+import com.ubo.tp.message.ihm.controller.LoginController;
 
 public class LoginView extends JPanel {
     private static final long serialVersionUID = 1L;

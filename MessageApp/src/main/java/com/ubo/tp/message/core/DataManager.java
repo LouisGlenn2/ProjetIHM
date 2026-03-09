@@ -1,17 +1,16 @@
-package main.java.com.ubo.tp.message.core;
+package com.ubo.tp.message.core;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import main.java.com.ubo.tp.message.core.database.EntityManager;
-import main.java.com.ubo.tp.message.core.database.IDatabase;
-import main.java.com.ubo.tp.message.core.database.IDatabaseObserver;
-import main.java.com.ubo.tp.message.core.directory.IWatchableDirectory;
-import main.java.com.ubo.tp.message.core.directory.WatchableDirectory;
-import main.java.com.ubo.tp.message.datamodel.Channel;
-import main.java.com.ubo.tp.message.datamodel.IMessageRecipient;
-import main.java.com.ubo.tp.message.datamodel.Message;
-import main.java.com.ubo.tp.message.datamodel.User;
+import com.ubo.tp.message.core.database.EntityManager;
+import com.ubo.tp.message.core.database.IDatabase;
+import com.ubo.tp.message.core.database.IDatabaseObserver;
+import com.ubo.tp.message.core.directory.IWatchableDirectory;
+import com.ubo.tp.message.core.directory.WatchableDirectory;
+import com.ubo.tp.message.datamodel.Channel;
+import com.ubo.tp.message.datamodel.IMessageRecipient;
+import com.ubo.tp.message.datamodel.Message;
+import com.ubo.tp.message.datamodel.User;
 
 /**
  * Classe permettant de manipuler les données de l'application.
