@@ -1,5 +1,6 @@
 package com.ubo.tp.message.ihm.controller;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -18,7 +19,7 @@ public class MessageController implements IDatabaseObserver {
     private final IDatabase database;
     private final DataManager dataManager;
     private final ISession session;
-    private IMessageRecipient currentRecipient; // Canal ou Utilisateur cible
+    private IMessageRecipient currentRecipient; 
 
     public MessageController(IDatabase database, DataManager dataManager, ISession session) {
         this.database = database;
@@ -28,44 +29,54 @@ public class MessageController implements IDatabaseObserver {
         this.database.addObserver(this);
     }
 
-    // Définit la cible (clic sur canal ou utilisateur)
+
     public void setRecipient(IMessageRecipient recipient) {
         this.currentRecipient = recipient;
-        if (recipient instanceof Channel) {
-            this.setFilter("#" + ((Channel) recipient).getName());
-        } else if (recipient instanceof User) {
-            this.setFilter("@" + ((User) recipient).getUserTag());
-        }
+        System.out.println("DESTINATAIRE CHANGÉ : " + recipient.getUuid().toString());
+        this.view.refresh();
     }
 
 
+ // Dans MessageController.java
+
     public void sendMessage(String text) {
-        User author = session.getConnectedUser();
-      
-        if (author != null && currentRecipient != null && !text.trim().isEmpty()) {
-           UUID recipientUuid = currentRecipient.getUuid();
-            Message msg = new Message(author, recipientUuid, text);
-            this.dataManager.sendMessage(msg);
+        if (text != null && !text.trim().isEmpty() && currentRecipient != null) {
+            User me = session.getConnectedUser();
+            java.util.UUID recipientUUID = currentRecipient.getUuid();
+            System.out.println("id associé message"+recipientUUID);
+            Message newMessage = new Message(me, recipientUUID, text);
+            this.dataManager.sendMessage(newMessage);
         }
     }
 
     public void setFilter(String query) { this.view.setFilter(query); }
 
-    public Set<Message> getFilteredMessages(String searchString) {
-        Set<Message> allMessages = database.getMessages();
-        if (searchString == null || searchString.trim().isEmpty()) return allMessages;
 
-        String filter = searchString.trim().toLowerCase();
-        return allMessages.stream().filter(msg -> {
-            if (filter.startsWith("@")) {
-                return msg.getSender().getUserTag().toLowerCase().equals(filter.substring(1));
-            } else if (filter.startsWith("#")) {
-                return msg.getText().toLowerCase().contains(filter);
-            }
-            return msg.getText().toLowerCase().contains(filter) || 
-                   msg.getSender().getName().toLowerCase().contains(filter);
-        }).collect(Collectors.toSet());
+
+    public List<Message> getFilteredMessages(String searchString) { 
+        Set<Message> allMessages = database.getMessages();
+        
+        return allMessages.stream()
+            .filter(msg -> {
+                boolean matchesRecipient = false;
+                if (currentRecipient != null) {
+                    String msgDest = msg.getRecipient().toString();
+                    String currentDest = currentRecipient.getUuid().toString();
+                    matchesRecipient = msgDest.equals(currentDest);
+                }
+                
+                boolean matchesSearch = true;
+                if (searchString != null && !searchString.isEmpty()) {
+                    String filter = searchString.toLowerCase();
+                    matchesSearch = msg.getText().toLowerCase().contains(filter) || 
+                                    msg.getSender().getName().toLowerCase().contains(filter);
+                }
+                return matchesRecipient && matchesSearch;
+            })
+            .sorted((m1, m2) -> Long.compare(m1.getEmissionDate(), m2.getEmissionDate()))
+            .collect(Collectors.toList());
     }
+    
 
     public MessageListView getView() { return view; }
     public boolean isOwnMessage(Message m) { return session.getConnectedUser() != null && m.getSender().equals(session.getConnectedUser()); }
