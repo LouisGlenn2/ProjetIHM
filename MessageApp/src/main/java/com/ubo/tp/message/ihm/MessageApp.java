@@ -17,6 +17,7 @@ import com.ubo.tp.message.ihm.controller.LoginController;
 import com.ubo.tp.message.ihm.controller.MessageController;
 import com.ubo.tp.message.ihm.controller.NavigationController;
 import com.ubo.tp.message.ihm.controller.SignupController;
+import com.ubo.tp.message.ihm.controller.UserEditController;
 import com.ubo.tp.message.ihm.controller.UserListController;
 
 /**
@@ -35,6 +36,8 @@ public class MessageApp implements ISessionObserver {
     protected ChannelController mChannelController;
     protected MessageController mMessageController;
     protected UserListController mUserListController;
+    protected UserEditController mUserEditController;
+    
     public MessageApp(DataManager dataManager, IDatabase database) {
         this.mDataManager = dataManager;
         this.mDatabase = database;
@@ -70,7 +73,7 @@ public class MessageApp implements ISessionObserver {
         this.mMainView.setLogoutCallback(this::handleLogout);
         this.mMainView.setDeleteAccountCallback(this::handleDeleteAccount); // Ajout du callback
         this.mNavigationController = new NavigationController(mMainView);
-        
+        this.mMainView.setUpdateAccountCallback(this::showUserEditView);
         
         // Initialisation des contrôleurs avec des callbacks de navigation
         this.mLoginController = new LoginController(mDatabase, mSession, this::showSignupView);
@@ -91,6 +94,14 @@ public class MessageApp implements ISessionObserver {
     }
     private void handleLogout() {
         mSession.disconnect(); // Déconnecte l'utilisateur
+    }
+
+    /**
+     * Affiche la vue de modification du profil.
+     */
+    private void showUserEditView() {
+        this.mUserEditController = new UserEditController(mDataManager, mSession, this::showMainContent);
+        mNavigationController.showPage(mUserEditController.getView());
     }
 
     private void handleDeleteAccount() {

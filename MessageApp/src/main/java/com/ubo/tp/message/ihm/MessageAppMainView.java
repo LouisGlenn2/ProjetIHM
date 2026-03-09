@@ -75,6 +75,13 @@ public class MessageAppMainView extends JFrame {
 		this.onDeleteAccount = onDeleteAccount;
 	}
 
+	private Runnable onUpdateAccount;
+
+	public void setUpdateAccountCallback(Runnable onUpdateAccount) {
+		this.onUpdateAccount = onUpdateAccount;
+	}
+
+
 	private JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
 
@@ -102,6 +109,16 @@ public class MessageAppMainView extends JFrame {
 			}
 		});
 		menuFile.add(itemDeleteAccount);
+
+		// Bouton "Modifier mon compte"
+		JMenuItem itemupdateAccount = new JMenuItem("Modifier mon compte", new ImageIcon("C:\\Ihm\\MessageApp\\bin\\main\\resources\\images\\deleteIcon_20.png"));
+		itemupdateAccount.setToolTipText("Modifier mon compte");
+		itemupdateAccount.addActionListener(e -> {
+			if (onUpdateAccount != null) {
+				onUpdateAccount.run(); // Appelle le callback de suppression de compte
+			}
+		});
+		menuFile.add(itemupdateAccount);
 
 		JMenu menuHelp = new JMenu("?");
 		JMenuItem itemAbout = new JMenuItem("À propos", new ImageIcon("C:\\Ihm\\MessageApp\\bin\\main\\resources\\images\\editIcon_20.png"));
