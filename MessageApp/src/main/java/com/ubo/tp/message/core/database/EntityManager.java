@@ -464,4 +464,27 @@ public class EntityManager implements IWatchableDirectoryObserver {
 			throw new RuntimeException("Le répertoire d'échange n'est pas configuré !");
 		}
 	}
+
+	public String getFileNameByUserName(String userName) {
+		if (userName == null) return null;
+	
+		// On parcourt les entrées de la map (NomFichier -> Objet User)
+		for (Map.Entry<String, User> entry : mUserFileMap.entrySet()) {
+			User user = entry.getValue();
+			// On compare le tag de l'utilisateur avec le nom recherché
+			if (userName.equals(user.getUserTag())) {
+				return entry.getKey(); // On a trouvé le bon nom de fichier
+			}
+		}
+		return null;
+	}
+	
+	public String getUserFilePath(User user) {
+		if (user == null || user.getUserTag() == null) {
+			return null;
+		}
+	
+		// Exemple : Construire le chemin du fichier utilisateur
+		return mDirectoryPath + File.separator + this.getFileNameByUserName(user.getName());
+	}
 }

@@ -3,6 +3,7 @@ package com.ubo.tp.message.ihm;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.net.URL;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -68,7 +69,11 @@ public class MessageAppMainView extends JFrame {
 		this.onLogout = onLogout;
 	}
 
+	private Runnable onDeleteAccount;
 
+	public void setDeleteAccountCallback(Runnable onDeleteAccount) {
+		this.onDeleteAccount = onDeleteAccount;
+	}
 
 	private JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
@@ -87,6 +92,17 @@ public class MessageAppMainView extends JFrame {
 			}
 		});
 		menuFile.add(itemLogout);
+
+		// Bouton "Supprimer mon compte"
+		JMenuItem itemDeleteAccount = new JMenuItem("Supprimer mon compte", new ImageIcon("C:\\Ihm\\MessageApp\\bin\\main\\resources\\images\\deleteIcon_20.png"));
+		itemDeleteAccount.setToolTipText("Supprimer définitivement votre compte");
+		itemDeleteAccount.addActionListener(e -> {
+			if (onDeleteAccount != null) {
+				onDeleteAccount.run(); // Appelle le callback de suppression de compte
+			}
+		});
+		menuFile.add(itemDeleteAccount);
+
 		JMenu menuHelp = new JMenu("?");
 		JMenuItem itemAbout = new JMenuItem("À propos", new ImageIcon("C:\\Ihm\\MessageApp\\bin\\main\\resources\\images\\editIcon_20.png"));
 		itemAbout.addActionListener(e -> showAboutDialog());

@@ -1,7 +1,9 @@
 package com.ubo.tp.message.core;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+
 import com.ubo.tp.message.core.database.EntityManager;
 import com.ubo.tp.message.core.database.IDatabase;
 import com.ubo.tp.message.core.database.IDatabaseObserver;
@@ -181,4 +183,29 @@ public class DataManager {
 		mWatchableDirectory.initWatching();
 		mWatchableDirectory.addObserver(mEntityManager);
 	}
+
+	public void deleteUser(User user) {
+		if (user == null) {
+			System.err.println("Utilisateur invalide.");
+			return;
+		}
+
+		// Générer le chemin du fichier utilisateur
+		String userFilePath = mEntityManager.getUserFilePath(user);
+		if (userFilePath == null) {
+			System.err.println("Impossible de générer le chemin du fichier utilisateur.");
+			return;
+		}
+
+		File userFile = new File(userFilePath);
+		if (userFile.exists()) {
+			if (userFile.delete()) {
+				System.out.println("Fichier utilisateur supprimé : " + userFile.getAbsolutePath());
+			} else {
+				System.err.println("Échec de la suppression du fichier utilisateur : " + userFile.getAbsolutePath());
+			}
+		} else {
+			System.err.println("Fichier utilisateur introuvable : " + userFile.getAbsolutePath());
+		}
+	}	
 }

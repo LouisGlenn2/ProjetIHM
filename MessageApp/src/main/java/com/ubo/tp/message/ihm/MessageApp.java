@@ -1,8 +1,10 @@
 package com.ubo.tp.message.ihm;
 
 import java.io.File;
+
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+
 import com.ubo.tp.message.core.DataManager;
 import com.ubo.tp.message.core.DataManagerHelper;
 import com.ubo.tp.message.core.database.IDatabase;
@@ -66,6 +68,7 @@ public class MessageApp implements ISessionObserver {
     protected void initGui() {
         this.mMainView = new MessageAppMainView();
         this.mMainView.setLogoutCallback(this::handleLogout);
+        this.mMainView.setDeleteAccountCallback(this::handleDeleteAccount); // Ajout du callback
         this.mNavigationController = new NavigationController(mMainView);
         
         
@@ -90,6 +93,23 @@ public class MessageApp implements ISessionObserver {
         mSession.disconnect(); // Déconnecte l'utilisateur
     }
 
+    private void handleDeleteAccount() {
+        User connectedUser = mSession.getConnectedUser();
+        if (connectedUser != null) {
+            int confirmation = JOptionPane.showConfirmDialog(
+                mMainView,
+                "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.",
+                "Confirmation de suppression",
+                JOptionPane.YES_NO_OPTION
+            );
+    
+            if (confirmation == JOptionPane.YES_OPTION) {
+                // Supprimer le fichier utilisateur
+                mDataManager.deleteUser(connectedUser); // Supprime le fichier associé
+                mSession.disconnect(); // Déconnecte l'utilisateur
+            }
+        }
+    }
     // --- Méthodes de Navigation ---
 
     /**
