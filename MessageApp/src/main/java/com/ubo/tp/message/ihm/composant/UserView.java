@@ -30,4 +30,11 @@ public class UserView extends JPanel {
         statusLabel.setForeground(user.isOnline() ? Color.GREEN.darker() : Color.RED.darker());
         this.add(statusLabel, BorderLayout.SOUTH);
     }
+
+    public void addSelectionListener(java.awt.event.MouseAdapter adapter) {
+        this.addMouseListener(adapter);
+        for (Component c : getComponents()) {
+            c.addMouseListener(adapter);
+        }
+    }
 }

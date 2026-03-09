@@ -16,6 +16,7 @@ import main.java.com.ubo.tp.message.ihm.composant.ListUserView;
 public class UserListController implements IDatabaseObserver {
     private final IDatabase database;
     private final ListUserView view;
+    private MessageController messageController;
     private Channel currentChannel; // Canal sélectionné
 
     public UserListController(IDatabase database) {
@@ -51,6 +52,16 @@ public class UserListController implements IDatabaseObserver {
             view.setUsers(finalUsers);
             view.refresh();
         });
+    }
+ 
+
+    public void setMessageController(MessageController messageController) {
+    	this.messageController = messageController;
+    	this.view.setOnUserSelected(user -> {
+         if (this.messageController != null) {
+             this.messageController.setRecipient(user);
+         }
+    	});
     }
 
     public ListUserView getView() {

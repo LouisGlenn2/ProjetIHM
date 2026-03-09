@@ -2,12 +2,17 @@ package main.java.com.ubo.tp.message.ihm.composant;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
+import java.util.function.Consumer;
+
 import main.java.com.ubo.tp.message.datamodel.User;
 
 public class ListUserView extends JPanel {
     private static final long serialVersionUID = 1L;
     private List<User> mUsers;
+    private Consumer<User> onUserSelected;
     private final JPanel listContainer; 
     public ListUserView(List<User> users) {
         this.mUsers = users;
@@ -33,21 +38,29 @@ public class ListUserView extends JPanel {
     public void setUsers(List<User> users) {
         this.mUsers = users;
     }
-
+    public void setOnUserSelected(Consumer<User> callback) {
+        this.onUserSelected = callback;
+    }
+    // Modifiez la boucle dans refresh() :
     public void refresh() {
         listContainer.removeAll();
-
         if (mUsers != null) {
             for (User user : mUsers) {
                 UserView userView = new UserView(user);
-                userView.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
-                userView.setAlignmentX(Component.CENTER_ALIGNMENT);
                 
+                userView.addSelectionListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (onUserSelected != null) {
+                            onUserSelected.accept(user);
+                        }
+                    }
+                });
+
                 listContainer.add(userView);
-                listContainer.add(Box.createVerticalStrut(10));
+                listContainer.add(Box.createRigidArea(new Dimension(0, 5)));
             }
         }
-
         listContainer.revalidate();
         listContainer.repaint();
     }

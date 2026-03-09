@@ -19,6 +19,10 @@ public class ChannelView extends JPanel {
         btnName.setHorizontalAlignment(SwingConstants.LEFT);
         btnName.addActionListener(e -> controller.selectChannel(channel));
         this.add(btnName, BorderLayout.CENTER);
+        
+        boolean isPrivate = !channel.getUsers().isEmpty();
+        String prefix = isPrivate ? "🔒 " : "# ";
+        JButton btnNamePrivate = new JButton(prefix + channel.getName());
 
         JPanel actionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         actionsPanel.setOpaque(false);
@@ -31,12 +35,9 @@ public class ChannelView extends JPanel {
         JButton btnDelete = new JButton("🗑");
         btnDelete.setForeground(Color.RED);
         btnDelete.addActionListener(e -> {
-            int choice = JOptionPane.showConfirmDialog(this, 
-                "Voulez-vous vraiment supprimer le canal " + channel.getName() + " ?", 
-                "Confirmation", 
-                JOptionPane.YES_NO_OPTION);
+            int choice = JOptionPane.showConfirmDialog(this, "Supprimer le canal ?");
             if (choice == JOptionPane.YES_OPTION) {
-                //controller.deleteChannel(channel);
+                // controller.dataManager.removeChannel(channel); // Nécessite l'accès au DataManager
             }
         });
         actionsPanel.add(btnDelete);

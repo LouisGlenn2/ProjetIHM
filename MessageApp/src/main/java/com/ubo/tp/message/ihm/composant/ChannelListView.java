@@ -5,6 +5,7 @@ import javax.swing.border.EmptyBorder;
 
 import java.awt.*;
 import main.java.com.ubo.tp.message.datamodel.Channel;
+import main.java.com.ubo.tp.message.datamodel.User;
 import main.java.com.ubo.tp.message.ihm.controller.ChannelController;
 
 @SuppressWarnings("unused")
@@ -54,8 +55,16 @@ public class ChannelListView extends JPanel {
 
     public void refresh() {
         listPanel.removeAll();
+        User me = controller.getConnectedUser();
+        
         for (Channel c : controller.getChannels()) {
-            listPanel.add(new ChannelView(c, controller));
+            boolean isVisible = c.getUsers().isEmpty() || 
+                               c.getCreator().equals(me) || 
+                               c.getUsers().contains(me);
+            
+            if (isVisible) {
+                listPanel.add(new ChannelView(c, controller));
+            }
         }
         listPanel.revalidate();
         listPanel.repaint();

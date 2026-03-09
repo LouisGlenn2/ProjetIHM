@@ -72,9 +72,10 @@ public class MessageApp implements ISessionObserver {
         // Initialisation des contrôleurs avec des callbacks de navigation
         this.mLoginController = new LoginController(mDatabase, mSession, this::showSignupView);
         this.mSignupController = new SignupController(mDatabase,mDataManager, this::showLoginView);
-        this.mMessageController=new MessageController(mDatabase,mSession);
+        this.mMessageController=new MessageController(mDatabase,mDataManager, mSession);
         this.mChannelController = new ChannelController(mDatabase,mDataManager,mSession);
         this.mUserListController = new UserListController(mDatabase);
+        mUserListController.setMessageController(mMessageController);
         
         // Affichage de la vue par défaut
         this.showLoginView();
