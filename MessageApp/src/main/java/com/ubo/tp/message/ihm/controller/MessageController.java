@@ -1,7 +1,7 @@
 package com.ubo.tp.message.ihm.controller;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import com.ubo.tp.message.core.DataManager;
@@ -37,7 +37,6 @@ public class MessageController implements IDatabaseObserver {
     }
 
 
- // Dans MessageController.java
 
     public void sendMessage(String text) {
         if (text != null && !text.trim().isEmpty() && currentRecipient != null) {
@@ -53,18 +52,24 @@ public class MessageController implements IDatabaseObserver {
 
 
 
-    public List<Message> getFilteredMessages(String searchString) { 
-        Set<Message> allMessages = database.getMessages();
-        
-        return allMessages.stream()
+    public List<Message> getFilteredMessages(String searchString) {
+        User me = session.getConnectedUser();
+        if (me == null || currentRecipient == null) {
+            return new ArrayList<>();
+        }
+        UUID currentUuid = currentRecipient.getUuid();
+        return database.getMessages().stream()
             .filter(msg -> {
                 boolean matchesRecipient = false;
-                if (currentRecipient != null) {
-                    String msgDest = msg.getRecipient().toString();
-                    String currentDest = currentRecipient.getUuid().toString();
-                    matchesRecipient = msgDest.equals(currentDest);
+
+                if (currentRecipient instanceof Channel) {
+                    matchesRecipient = msg.getRecipient().equals(currentUuid);
+                } 
+                else if (currentRecipient instanceof User) {
+                    boolean sentByMe = msg.getSender().equals(me) && msg.getRecipient().equals(currentUuid);
+                    boolean sentByOther = msg.getSender().getUuid().equals(currentUuid) && msg.getRecipient().equals(me.getUuid());
+                    matchesRecipient = sentByMe || sentByOther;
                 }
-                
                 boolean matchesSearch = true;
                 if (searchString != null && !searchString.isEmpty()) {
                     String filter = searchString.toLowerCase();
