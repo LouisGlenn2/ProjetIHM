@@ -17,11 +17,10 @@ public class UserListController implements IDatabaseObserver {
     private final IDatabase database;
     private final ListUserView view;
     private MessageController messageController;
-    private Channel currentChannel; // Canal sélectionné
+    private Channel currentChannel; 
 
     public UserListController(IDatabase database) {
         this.database = database;
-        // Initialement, on affiche tout le monde ou personne selon ton choix
         this.view = new ListUserView(new ArrayList<>(database.getUsers()));
         this.database.addObserver(this);
     }
@@ -38,10 +37,8 @@ public class UserListController implements IDatabaseObserver {
         List<User> membersToShow;
 
         if (currentChannel == null ||currentChannel.getUsers() == null || currentChannel.getUsers().isEmpty()) {
-            // Si rien n'est sélectionné, on affiche tous les utilisateurs de la DB
             membersToShow = new ArrayList<>(database.getUsers());
         } else {
-            // On combine le créateur et les invités du canal
             Set<User> members = new HashSet<>(currentChannel.getUsers());
             members.add(currentChannel.getCreator());
             membersToShow = new ArrayList<>(members);
@@ -76,14 +73,12 @@ public class UserListController implements IDatabaseObserver {
     public void notifyUserModified(User user) { refreshWithFilter(); }
     @Override
     public void notifyChannelModified(Channel c) { 
-        // Si le canal actuel est celui modifié, on rafraîchit (pour les membres)
         if (currentChannel != null && currentChannel.getUuid().equals(c.getUuid())) {
             this.currentChannel = c;
             refreshWithFilter();
         }
     }
     
-    // Autres méthodes de l'interface
     @Override public void notifyMessageAdded(Message m) {}
     @Override public void notifyMessageDeleted(Message m) {}
     @Override public void notifyMessageModified(Message m) {}

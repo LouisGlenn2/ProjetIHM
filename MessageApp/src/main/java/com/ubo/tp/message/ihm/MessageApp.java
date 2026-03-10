@@ -102,7 +102,12 @@ public class MessageApp implements ISessionObserver {
         }
     }
     private void handleLogout() {
-        mSession.disconnect(); // Déconnecte l'utilisateur
+        User currentUser = mSession.getConnectedUser();
+        if (currentUser != null) {
+            currentUser.setOnline(false);
+        }
+        mSession.disconnect(); 
+        // mMainView.setContent(mLoginView);
     }
 
     /**

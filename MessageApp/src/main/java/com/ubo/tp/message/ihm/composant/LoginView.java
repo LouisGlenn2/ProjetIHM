@@ -1,94 +1,153 @@
 package com.ubo.tp.message.ihm.composant;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
 import java.util.UUID;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.controller.LoginController;
 
 public class LoginView extends JPanel {
     private static final long serialVersionUID = 1L;
+    
     protected JTextField mTagField;
-    protected JPasswordField mPasswordField; // JPasswordField est plus sécurisé
+    protected JPasswordField mPasswordField; 
     private final JLabel errorLabel;
     private final JButton btnLogin;
-    private final JButton btnGoSignup; // On le déclare ici pour y accéder partout
+    private final JButton btnGoSignup; 
     private final LoginController controller;
+
+    // Couleurs du thème
+    private final Color primaryColor = new Color(52, 152, 219); // Bleu moderne
+    private final Color backgroundColor = Color.WHITE;
+    private final Color textColor = new Color(44, 62, 80);
 
     public LoginView(LoginController controller) {
         this.controller = controller;
         this.setLayout(new GridBagLayout());
+        this.setBackground(backgroundColor);
+        this.setBorder(new EmptyBorder(40, 40, 40, 40));
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // --- TITRE ---
-        JLabel titleLabel = new JLabel("MessageApp - Connexion");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        JLabel titleLabel = new JLabel("Bienvenue", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        titleLabel.setForeground(textColor);
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.gridwidth = 2; // Prend 2 colonnes
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(0, 0, 30, 0); // Plus d'espace sous le titre
         add(titleLabel, gbc);
 
-        // --- CHAMP UTILISATEUR ---
-        gbc.gridwidth = 1; // On repasse à 1 colonne
-        gbc.gridy = 1;
-        gbc.gridx = 0;
-        add(new JLabel("Nom d'utilisateur :"), gbc);
+        // --- CHAMPS DE SAISIE ---
+        gbc.gridwidth = 2; // Les champs prennent toute la largeur
+        gbc.insets = new Insets(5, 0, 5, 0);
 
-        mTagField = new JTextField(15);
-        gbc.gridx = 1;
+        addLabel(gbc, "Nom d'utilisateur", 1);
+        mTagField = createStyledTextField();
+        gbc.gridy = 2;
         add(mTagField, gbc);
 
-        // --- CHAMP MOT DE PASSE ---
-        gbc.gridy = 2;
-        gbc.gridx = 0;
-        add(new JLabel("Mot de passe :"), gbc);
-
-        mPasswordField = new JPasswordField(15);
-        gbc.gridx = 1;
+        addLabel(gbc, "Mot de passe", 3);
+        mPasswordField = createStyledPasswordField();
+        gbc.gridy = 4;
         add(mPasswordField, gbc);
 
-        // --- BOUTON SE CONNECTER (A GAUCHE) ---
-        btnLogin = new JButton("Se connecter");
-        gbc.gridy = 3;
-        gbc.gridx = 0;
-        gbc.gridwidth = 1; // IMPORTANT : Seulement 1 colonne ici
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        // --- BOUTON CONNEXION (Style plein) ---
+        btnLogin = new JButton("Se connecter") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(primaryColor);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
+                g2.setColor(Color.WHITE);
+                g2.setFont(getFont());
+                FontMetrics fm = g2.getFontMetrics();
+                int x = (getWidth() - fm.stringWidth(getText())) / 2;
+                int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
+                g2.drawString(getText(), x, y);
+                g2.dispose();
+            }
+        };
+        styleButton(btnLogin, true);
+        gbc.gridy = 5;
+        gbc.insets = new Insets(25, 0, 5, 0);
         add(btnLogin, gbc);
 
-        // --- BOUTON S'INSCRIRE (A DROITE) ---
-        btnGoSignup = new JButton("S'inscrire");
-        gbc.gridx = 1; // Colonne d'à côté
+        // --- BOUTON INSCRIPTION (Style texte) ---
+        btnGoSignup = new JButton("Pas encore de compte ? S'inscrire");
+        styleButton(btnGoSignup, false);
+        gbc.gridy = 6;
+        gbc.insets = new Insets(5, 0, 5, 0);
         add(btnGoSignup, gbc);
 
         // --- LABEL ERREUR ---
-        errorLabel = new JLabel();
-        errorLabel.setForeground(Color.RED);
-        gbc.gridy = 4;
-        gbc.gridx = 0;
-        gbc.gridwidth = 2;
+        errorLabel = new JLabel("", SwingConstants.CENTER);
+        errorLabel.setForeground(new Color(231, 76, 60));
+        errorLabel.setFont(new Font("Segoe UI", Font.ITALIC, 12));
+        gbc.gridy = 7;
         add(errorLabel, gbc);
 
-        // Initialisation des actions
         manageAction();
     }
 
+    private void addLabel(GridBagConstraints gbc, String text, int y) {
+        JLabel lbl = new JLabel(text);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lbl.setForeground(new Color(127, 140, 141));
+        gbc.gridy = y;
+        add(lbl, gbc);
+    }
+
+    private JTextField createStyledTextField() {
+        JTextField field = new JTextField();
+        applyCommonStyle(field);
+        return field;
+    }
+
+    private JPasswordField createStyledPasswordField() {
+        JPasswordField field = new JPasswordField();
+        applyCommonStyle(field);
+        return field;
+    }
+
+    private void applyCommonStyle(JTextField field) {
+        field.setPreferredSize(new Dimension(300, 40));
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        field.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+    }
+
+    private void styleButton(JButton btn, boolean isPrimary) {
+        btn.setPreferredSize(new Dimension(300, 45));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setContentAreaFilled(false);
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        if (!isPrimary) {
+            btn.setForeground(primaryColor);
+        }
+    }
+
     public void manageAction() {
-        // Action Connexion
         btnLogin.addActionListener(e -> {
             User user = new User(UUID.randomUUID(), mTagField.getText(), new String(mPasswordField.getPassword()), null);
             controller.handleLogin(user);
         });
 
-        // Action Navigation vers Inscription
-        btnGoSignup.addActionListener(e -> {
-            controller.goToSignup();
-        });
+        btnGoSignup.addActionListener(e -> controller.goToSignup());
     }
 
-    // Getters et Setters utiles
     public void setError(String error) {
         errorLabel.setText(error);
-        this.revalidate(); // Force la mise à jour visuelle
+        this.revalidate();
     }
 }

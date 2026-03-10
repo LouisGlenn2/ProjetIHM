@@ -23,11 +23,8 @@ public class UserEditController {
     public void updateUser(String newName) {
         User current = session.getConnectedUser();
         if (current != null && !newName.trim().isEmpty()) {
-            // Création d'une copie de l'utilisateur avec le nouveau nom
             User updatedUser = new User(current.getUuid(), current.getUserTag(), current.getUserPassword(), newName);
-            // On demande au DataManager de propager la modification (écriture fichier)
             this.dataManager.sendUser(updatedUser);
-            // On met à jour la session locale pour que l'IHM reflète le changement immédiatement
             this.session.connect(updatedUser); 
             this.onFinish.run();
         }

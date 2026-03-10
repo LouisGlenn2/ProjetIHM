@@ -24,14 +24,15 @@ public class LoginController {
     }
 
   
-    public void handleLogin(User connectedUser) {
-        User userDb = searchUser(connectedUser);
+    public void handleLogin(User userFromFields) {
+        User userInDb = searchUser(userFromFields); 
 
-        if (userDb == null) {
+        if (userInDb == null) {
             loginView.setError("Identifiant ou mot de passe incorrect");
             return;
         }
-        session.connect(userDb);
+        userInDb.setOnline(true); 
+        session.connect(userInDb);
     }
 
     private User searchUser(User user) {
@@ -53,11 +54,7 @@ public class LoginController {
         return session;
     }
 
-
- // Dans LoginController.java
-
     public void goToSignup() {
-        // Ce Runnable 'onNavigateToSignup' a été passé par MessageApp lors de l'init
         if (this.onNavigateToSignup != null) {
             this.onNavigateToSignup.run();
         }

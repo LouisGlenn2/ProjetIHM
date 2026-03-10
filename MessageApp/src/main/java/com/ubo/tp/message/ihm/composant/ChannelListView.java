@@ -1,11 +1,10 @@
 package com.ubo.tp.message.ihm.composant;
 
 import javax.swing.*;
-import java.util.*;
-import java.util.List;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionListener;
-
+import java.util.ArrayList;
+import java.util.List;
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.controller.ChannelController;
@@ -18,49 +17,45 @@ public class ChannelListView extends JPanel {
     public ChannelListView(ChannelController controller) {
         this.controller = controller;
         this.setLayout(new BorderLayout());
-        this.setPreferredSize(new Dimension(200, 0));
+        this.setBackground(Color.WHITE);
+        this.setPreferredSize(new Dimension(240, 0));
+        this.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         // --- EN-TÊTE ---
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(230, 230, 230));
+        headerPanel.setOpaque(false);
+        headerPanel.setBorder(new EmptyBorder(0, 5, 10, 5));
 
-        JLabel title = new JLabel(" CANAUX");
-        title.setFont(new Font("Arial", Font.BOLD, 12));
+        JLabel title = new JLabel("CANAUX");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        title.setForeground(new Color(149, 165, 166));
         headerPanel.add(title, BorderLayout.WEST);
 
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
-        buttonsPanel.setOpaque(false);
-
-        JButton btnSearch = new JButton("🔍");
-        btnSearch.addActionListener(e -> openSearchDialog());
-
+        // Bouton Ajouter (+)
         JButton btnAdd = new JButton("+");
-        btnAdd.setToolTipText("Créer un canal");
+        btnAdd.setFont(new Font("Arial", Font.BOLD, 18));
+        btnAdd.setFocusPainted(false);
+        btnAdd.setBorderPainted(false);
+        btnAdd.setContentAreaFilled(false);
+        btnAdd.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnAdd.setToolTipText("Créer un nouveau canal");
         btnAdd.addActionListener(e -> openCreationDialog());
-
-        buttonsPanel.add(btnSearch);
-        buttonsPanel.add(btnAdd);
-        headerPanel.add(buttonsPanel, BorderLayout.EAST);
+        headerPanel.add(btnAdd, BorderLayout.EAST);
 
         this.add(headerPanel, BorderLayout.NORTH);
 
-        // --- LISTE ---
+        // --- LISTE DES CANAUX ---
         listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
-        this.add(new JScrollPane(listPanel), BorderLayout.CENTER);
+        listPanel.setBackground(Color.WHITE);
+
+        JScrollPane scrollPane = new JScrollPane(listPanel);
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        this.add(scrollPane, BorderLayout.CENTER);
 
         refresh();
-    }
-
-    private void openSearchDialog() {
-        if (controller.getSearchController() != null) {
-            SearchView searchView = new SearchView(this.controller.getSearchController());
-            JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Recherche", true);
-            dialog.add(searchView);
-            dialog.pack();
-            dialog.setLocationRelativeTo(this);
-            dialog.setVisible(true);
-        }
     }
 
     private void openCreationDialog() {
@@ -79,7 +74,7 @@ public class ChannelListView extends JPanel {
             if (!name.isEmpty()) {
                 List<User> selectedUsers = new ArrayList<>();
                 if (privateBox.isSelected()) {
-                    selectedUsers = showUserSelectionDialog("Membres autorisés", controller.getAllAvailableUsers(), null);
+                    selectedUsers = showUserSelectionDialog("Inviter des membres", controller.getAllAvailableUsers(), null);
                     if (selectedUsers == null) return;
                 }
                 controller.createChannel(name, selectedUsers);
@@ -87,10 +82,6 @@ public class ChannelListView extends JPanel {
         }
     }
 
-
-    /**
-     * Affiche le dialogue complet (Barre de recherche + Liste cochable)
-     */
     public List<User> showUserSelectionDialog(String title, List<User> allUsers, List<User> initialSelection) {
         DefaultListModel<User> model = new DefaultListModel<>();
         allUsers.forEach(model::addElement);
@@ -100,20 +91,17 @@ public class ChannelListView extends JPanel {
 
         JTextField searchField = createSearchField(userJList, model, allUsers);
 
-        JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
+        JPanel mainPanel = new JPanel(new BorderLayout(5, 10));
         mainPanel.add(searchField, BorderLayout.NORTH);
         
         JScrollPane scrollPane = new JScrollPane(userJList);
-        scrollPane.setPreferredSize(new Dimension(300, 400));
+        scrollPane.setPreferredSize(new Dimension(300, 300));
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
         int result = JOptionPane.showConfirmDialog(this, mainPanel, title, JOptionPane.OK_CANCEL_OPTION);
         return (result == JOptionPane.OK_OPTION) ? userJList.getSelectedValuesList() : null;
     }
 
-    /**
-     * Configure la JList avec le rendu Checkbox et le Simple Clic
-     */
     private JList<User> createUserJList(DefaultListModel<User> model) {
         JList<User> list = new JList<>(model);
         list.setSelectionModel(new DefaultListSelectionModel() {
@@ -126,22 +114,17 @@ public class ChannelListView extends JPanel {
         list.setCellRenderer((l, user, index, isSelected, cellHasFocus) -> {
             JCheckBox cb = new JCheckBox("@" + user.getUserTag() + " (" + user.getName() + ")");
             cb.setSelected(isSelected);
-            cb.setBackground(isSelected ? l.getSelectionBackground() : l.getBackground());
-            cb.setForeground(isSelected ? l.getSelectionForeground() : l.getForeground());
             cb.setOpaque(true);
+            cb.setBackground(isSelected ? new Color(232, 240, 254) : Color.WHITE);
+            cb.setFont(new Font("Segoe UI", Font.PLAIN, 12));
             return cb;
         });
-
         return list;
     }
 
-    /**
-     * Crée la barre de recherche avec filtrage dynamique
-     */
     private JTextField createSearchField(JList<User> userJList, DefaultListModel<User> model, List<User> allUsers) {
         JTextField searchField = new JTextField();
-        searchField.setBorder(BorderFactory.createTitledBorder("Rechercher un utilisateur..."));
-
+        searchField.setBorder(BorderFactory.createTitledBorder("Rechercher..."));
         searchField.addCaretListener(e -> {
             String filter = searchField.getText().toLowerCase();
             List<User> selectedNow = userJList.getSelectedValuesList();
@@ -151,25 +134,20 @@ public class ChannelListView extends JPanel {
                     model.addElement(u);
                 }
             }
+            // Préserver la sélection lors du filtrage
             for (User u : selectedNow) {
                 int index = model.indexOf(u);
                 if (index != -1) userJList.addSelectionInterval(index, index);
             }
         });
-
         return searchField;
     }
 
-    /**
-     * Initialise la sélection lors de l'ouverture (cas de modification)
-     */
     private void applyInitialSelection(JList<User> list, List<User> allUsers, List<User> initialSelection) {
         if (initialSelection != null) {
             for (User u : initialSelection) {
                 int index = allUsers.indexOf(u);
-                if (index != -1) {
-                    list.getSelectionModel().addSelectionInterval(index, index);
-                }
+                if (index != -1) list.getSelectionModel().addSelectionInterval(index, index);
             }
         }
     }
@@ -177,10 +155,13 @@ public class ChannelListView extends JPanel {
     public void refresh() {
         listPanel.removeAll();
         User me = controller.getConnectedUser();
-        for (Channel c : controller.getChannels()) {
-            boolean isVisible = c.getUsers().isEmpty() || c.getCreator().equals(me) || c.getUsers().contains(me);
-            if (isVisible) {
-                listPanel.add(new ChannelView(c, controller));
+        if (me != null) {
+            for (Channel c : controller.getChannels()) {
+                boolean isVisible = c.getUsers().isEmpty() || c.getCreator().equals(me) || c.getUsers().contains(me);
+                if (isVisible) {
+                    listPanel.add(new ChannelView(c, controller));
+                    listPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+                }
             }
         }
         listPanel.revalidate();

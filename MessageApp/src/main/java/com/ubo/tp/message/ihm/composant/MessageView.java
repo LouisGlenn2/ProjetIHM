@@ -1,103 +1,98 @@
 package com.ubo.tp.message.ihm.composant;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.border.LineBorder;
-
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import com.ubo.tp.message.datamodel.Message;
-import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.controller.MessageController;
 
 public class MessageView extends JPanel {
+    private static final long serialVersionUID = 1L;
+    
+    // Modification du format pour inclure le jour, le mois et l'année
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy - HH:mm");
+    private final boolean isMe;
 
-	private static final long serialVersionUID = 1L;
-	private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-	protected Color defaultBackgroundColor;
-	protected LineBorder defaultLineBorder;
-	protected MessageController mController;
+    public MessageView(Message message, boolean ownMessage, MessageController controller) {
+        this.isMe = ownMessage;
+        this.setLayout(new BorderLayout());
+        this.setOpaque(false);
+        
+        int leftPad = isMe ? 60 : 10;
+        int rightPad = isMe ? 10 : 60;
+        this.setBorder(new EmptyBorder(5, leftPad, 5, rightPad));
 
-	public MessageView(Message message, boolean ownMessage, MessageController controller) {
+        // --- LA BULLE ---
+        JPanel bubble = new JPanel(new GridBagLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(isMe ? new Color(0, 132, 255) : Color.WHITE);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 18, 18));
+                g2.dispose();
+            }
+        };
+        bubble.setOpaque(false);
+        bubble.setBorder(new EmptyBorder(10, 14, 10, 14));
 
-		this.mController = controller;
-		this.setLayout(new GridBagLayout());
-		this.setOpaque(true);
-		this.defaultLineBorder = new LineBorder(Color.LIGHT_GRAY, 1, true);
-		this.setBorder(defaultLineBorder);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.gridx = 0;
 
-		if (ownMessage) {
-			this.defaultBackgroundColor = new Color(230, 230, 230); 
-		} else {
-			this.defaultBackgroundColor = Color.WHITE;
-		}
-		this.setBackground(this.defaultBackgroundColor);
+        // --- 1. NOM DE L'AUTEUR ---
+        JLabel authorLabel = new JLabel();
+        authorLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        if (isMe) {
+            authorLabel.setText("Moi");
+            authorLabel.setForeground(new Color(200, 230, 255));
+        } else {
+            authorLabel.setText(message.getSender().getName() + " (@" + message.getSender().getUserTag() + ")");
+            authorLabel.setForeground(new Color(0, 102, 204));
+        }
+        gbc.gridy = 0;
+        bubble.add(authorLabel, gbc);
 
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(5, 10, 5, 10);
-		gbc.fill = GridBagConstraints.HORIZONTAL;
+        // --- 2. CORPS DU MESSAGE ---
+        String text = message.getText().replaceAll("(@\\w+)", "<b style='color: #FFD700;'>$1</b>");
+        JLabel content = new JLabel("<html><p style='width: 250px'>" + text + "</p></html>");
+        content.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        content.setForeground(isMe ? Color.WHITE : Color.BLACK);
+        gbc.gridy = 1;
+        gbc.insets = new Insets(3, 0, 3, 0);
+        bubble.add(content, gbc);
 
-		User sender = message.getSender();
-		JLabel userDetails = new JLabel(sender.getName() + " (@" + sender.getUserTag() + ")");
-		userDetails.setFont(new Font("Arial", Font.BOLD, 12));
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.weightx = 1.0;
-		this.add(userDetails, gbc);
+        // --- 3. FOOTER (DATE + HEURE + SUPPRIMER) ---
+        JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        footer.setOpaque(false);
+        
+        // Affichage de la date et de l'heure formatées
+        JLabel dateTimeLabel = new JLabel(dateFormat.format(new Date(message.getEmissionDate())));
+        dateTimeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        dateTimeLabel.setForeground(isMe ? new Color(210, 230, 255) : Color.GRAY);
+        footer.add(dateTimeLabel);
 
-		String strDate = dateFormat.format(new Date(message.getEmissionDate()));
-		JLabel dateLabel = new JLabel(strDate, SwingConstants.RIGHT);
-		dateLabel.setFont(new Font("Arial", Font.ITALIC, 11));
-		dateLabel.setForeground(Color.DARK_GRAY);
-		gbc.gridx = 1;
-		gbc.weightx = 0;
-		this.add(dateLabel, gbc);
+        if (isMe) {
+            JButton btnDel = new JButton("✕");
+            btnDel.setMargin(new Insets(0,0,0,0));
+            btnDel.setContentAreaFilled(false);
+            btnDel.setBorderPainted(false);
+            btnDel.setForeground(new Color(255, 150, 150));
+            btnDel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            btnDel.addActionListener(e -> {
+                if (JOptionPane.showConfirmDialog(this, "Supprimer ce message ?") == JOptionPane.YES_OPTION) {
+                    controller.deleteMessage(message);
+                }
+            });
+            footer.add(btnDel);
+        }
+        gbc.gridy = 2;
+        bubble.add(footer, gbc);
 
-		if (ownMessage) {
-			JButton btnDelete = new JButton("X");
-			btnDelete.setForeground(Color.RED);
-			btnDelete.setContentAreaFilled(false);
-			btnDelete.setOpaque(false);
-			btnDelete.setBorderPainted(false);
-			btnDelete.setFocusPainted(false);
-			btnDelete.setFont(new Font("Arial", Font.BOLD, 12));
-
-			btnDelete.addActionListener(e -> {
-				int choice = JOptionPane.showConfirmDialog(this, "Supprimer ce message ?", "Confirmation",
-						JOptionPane.YES_NO_OPTION);
-				if (choice == JOptionPane.YES_OPTION) {
-					this.mController.deleteMessage(message);
-				}
-			});
-
-			gbc.gridx = 2;
-			gbc.gridy = 0;
-			gbc.weightx = 0;
-			gbc.anchor = GridBagConstraints.NORTHEAST;
-			gbc.insets = new Insets(2, 0, 0, 5);
-			this.add(btnDelete, gbc);
-		}
-
-		String rawText = message.getText();
-		
-		String formattedText = rawText.replaceAll("(@\\w+)", "<span style='color: #007bff; font-weight: bold;'>$1</span>");
-		JLabel content = new JLabel("<html>" + formattedText + "</html>");
-		content.setFont(new Font("Arial", Font.PLAIN, 13));
-		
-		gbc.gridx = 0;
-		gbc.gridy = 1;
-		gbc.gridwidth = 3;
-		gbc.weightx = 1.0;
-		gbc.insets = new Insets(5, 10, 10, 10);
-		this.add(content, gbc);
-	}
+        this.add(bubble, isMe ? BorderLayout.EAST : BorderLayout.WEST);
+    }
 }

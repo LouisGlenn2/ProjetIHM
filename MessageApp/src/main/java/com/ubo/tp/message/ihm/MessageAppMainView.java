@@ -341,18 +341,13 @@ return (imgURL != null) ? new ImageIcon(imgURL) : null;
 
 
 public void setMainComponent(JPanel panel) {
-
     this.getContentPane().removeAll();
-
-    this.add(panel);
-
+    this.add(panel, BorderLayout.CENTER);
     this.revalidate();
-
     this.repaint();
     if (notificationManager != null) {
         this.getLayeredPane().moveToFront(notificationManager);
     }
-
 }
 
 }
