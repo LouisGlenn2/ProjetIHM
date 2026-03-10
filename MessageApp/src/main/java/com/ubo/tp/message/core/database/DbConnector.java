@@ -109,4 +109,5 @@ public class DbConnector {
 	public void modifiyChannel(Channel channelToModify) {
 		this.mDatabase.modifiyChannel(channelToModify);
 	}
+	
 }

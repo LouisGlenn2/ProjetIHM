@@ -208,4 +208,15 @@ public class DataManager {
 			System.err.println("Fichier utilisateur introuvable : " + userFile.getAbsolutePath());
 		}
 	}	
+
+	public void deleteMessage(Message message, User currentUser) {
+		if (message != null && currentUser != null && 
+			message.getSender().getUuid().equals(currentUser.getUuid())) {
+			
+			String path = mEntityManager.getMessageFilePath(message);
+			if (path != null) {
+				new File(path).delete();
+			}
+		}
+	}
 }

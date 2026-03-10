@@ -468,12 +468,10 @@ public class EntityManager implements IWatchableDirectoryObserver {
 	public String getFileNameByUserName(String userName) {
 		if (userName == null) return null;
 	
-		// On parcourt les entrées de la map (NomFichier -> Objet User)
 		for (Map.Entry<String, User> entry : mUserFileMap.entrySet()) {
 			User user = entry.getValue();
-			// On compare le tag de l'utilisateur avec le nom recherché
 			if (userName.equals(user.getUserTag())) {
-				return entry.getKey(); // On a trouvé le bon nom de fichier
+				return entry.getKey();
 			}
 		}
 		return null;
@@ -484,7 +482,15 @@ public class EntityManager implements IWatchableDirectoryObserver {
 			return null;
 		}
 	
-		// Exemple : Construire le chemin du fichier utilisateur
 		return mDirectoryPath + File.separator + this.getFileNameByUserName(user.getName());
+	}
+
+	public String getMessageFilePath(Message message) {
+		for (Map.Entry<String, Message> entry : mMessageFileMap.entrySet()) {
+			if (entry.getValue().equals(message)) {
+				return mDirectoryPath + File.separator + entry.getKey();
+			}
+		}
+		return null;
 	}
 }

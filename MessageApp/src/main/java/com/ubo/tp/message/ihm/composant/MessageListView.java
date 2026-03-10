@@ -1,9 +1,20 @@
 package com.ubo.tp.message.ihm.composant;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.ActionListener;
 import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.ihm.controller.MessageController;
@@ -57,7 +68,7 @@ public class MessageListView extends JPanel {
         List<Message> messages = controller.getFilteredMessages(currentFilter);
 
         for (Message m : messages) {
-            MessageView mview = new MessageView(m, controller.isOwnMessage(m));
+            MessageView mview = new MessageView(m, controller.isOwnMessage(m), controller);
             mview.setMaximumSize(new Dimension(Integer.MAX_VALUE, mview.getPreferredSize().height));
             listContainer.add(mview);
             listContainer.add(Box.createRigidArea(new Dimension(0, 5)));

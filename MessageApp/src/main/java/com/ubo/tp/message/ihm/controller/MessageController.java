@@ -2,8 +2,8 @@ package com.ubo.tp.message.ihm.controller;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
+
 import com.ubo.tp.message.core.DataManager;
 import com.ubo.tp.message.core.database.IDatabase;
 import com.ubo.tp.message.core.database.IDatabaseObserver;
@@ -77,6 +77,9 @@ public class MessageController implements IDatabaseObserver {
             .collect(Collectors.toList());
     }
     
+    public void deleteMessage(Message message) {
+        this.dataManager.deleteMessage(message, session.getConnectedUser());
+    }
 
     public MessageListView getView() { return view; }
     public boolean isOwnMessage(Message m) { return session.getConnectedUser() != null && m.getSender().equals(session.getConnectedUser()); }
