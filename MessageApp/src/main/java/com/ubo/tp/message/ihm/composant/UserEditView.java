@@ -12,8 +12,7 @@ public class UserEditView extends JPanel {
     private final UserEditController controller;
     protected JTextField mNameField;
     
-    // Couleurs cohérentes avec le reste de l'application
-    private final Color primaryColor = new Color(0, 132, 255); // Ton bleu fétiche
+    private final Color primaryColor = new Color(0, 132, 255); 
     private final Color textColor = new Color(44, 62, 80);
     private final Color backgroundColor = Color.WHITE;
 
@@ -27,7 +26,6 @@ public class UserEditView extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 0, 10, 0);
 
-        // --- TITRE ---
         JLabel titleLabel = new JLabel("Modifier mon profil", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
         titleLabel.setForeground(textColor);
@@ -37,7 +35,6 @@ public class UserEditView extends JPanel {
         gbc.insets = new Insets(0, 0, 25, 0);
         add(titleLabel, gbc);
 
-        // --- LABEL CHAMP ---
         JLabel nameLabel = new JLabel("Nouveau pseudo");
         nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
         nameLabel.setForeground(new Color(127, 140, 141));
@@ -45,7 +42,6 @@ public class UserEditView extends JPanel {
         gbc.insets = new Insets(5, 0, 5, 0);
         add(nameLabel, gbc);
 
-        // --- CHAMP DE SAISIE ---
         mNameField = new JTextField(currentName);
         mNameField.setPreferredSize(new Dimension(300, 40));
         mNameField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -56,17 +52,14 @@ public class UserEditView extends JPanel {
         gbc.gridy = 2;
         add(mNameField, gbc);
 
-        // --- CONTENEUR DES BOUTONS ---
         JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 15, 0));
         buttonPanel.setOpaque(false);
         gbc.gridy = 3;
         gbc.insets = new Insets(25, 0, 0, 0);
 
-        // Bouton Valider (Style plein)
         JButton btnValidate = createStyledButton("Enregistrer", true);
         btnValidate.addActionListener(e -> controller.updateUser(mNameField.getText()));
 
-        // Bouton Annuler (Style contour/lien)
         JButton btnCancel = createStyledButton("Annuler", false);
         btnCancel.addActionListener(e -> controller.cancel());
 

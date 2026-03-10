@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
-
 import javax.swing.JOptionPane;
 
 import com.ubo.tp.message.core.DataManager;
@@ -35,32 +34,31 @@ public class MessageController implements IDatabaseObserver {
         this.database.addObserver(this);
     }
 
-
     public void setRecipient(IMessageRecipient recipient) {
         this.currentRecipient = recipient;
-        System.out.println("DESTINATAIRE CHANGÉ : " + recipient.getUuid().toString());
         this.view.refresh();
     }
 
+    public void sendMessage(String text) {
+        if (text != null && !text.trim().isEmpty() && currentRecipient != null) {
+            boolean isImage = text.startsWith("IMG:");
+            if (isImage || text.length() <= 200) {
+                User me = session.getConnectedUser();
+                UUID recipientUUID = currentRecipient.getUuid();
+                Message newMessage = new Message(me, recipientUUID, text);
 
-public void sendMessage(String text) {
-    if (text != null && !text.trim().isEmpty() && currentRecipient != null) {
-        if (text.length() <= 200) {
-            User me = session.getConnectedUser();
-            UUID recipientUUID = currentRecipient.getUuid();
-            Message newMessage = new Message(me, recipientUUID, text);
-
-            this.dataManager.sendMessage(newMessage);
-            checkMentions(text);
-        } else {
-            // Affichage de la popup d'erreur
-            JOptionPane.showMessageDialog(null, 
-                "Les messages sont limités à 200 caractères", 
-                "Erreur de saisie", 
-                JOptionPane.ERROR_MESSAGE);
+                this.dataManager.sendMessage(newMessage);
+                if (!isImage) {
+                    checkMentions(text);
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, 
+                    "Les messages sont limités à 200 caractères", 
+                    "Erreur de saisie", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
-}
 
     private void checkMentions(String text) {
         for (User user : database.getUsers()) {
@@ -70,62 +68,47 @@ public void sendMessage(String text) {
             }
         }
     }
+
     public void loadMissedNotifications() {
         User me = session.getConnectedUser();
         if (me == null || notificationListView == null) return;
         Preferences prefs = Preferences.userNodeForPackage(MessageController.class).node(me.getUuid().toString());
         for (Message m : database.getMessages()) {
-        	if (prefs.getBoolean(m.getUuid().toString(), false)) {
-        	    continue;
-        	}
-
+            if (prefs.getBoolean(m.getUuid().toString(), false)) continue;
             boolean isDirectMessage = m.getRecipient().equals(me.getUuid());
             boolean isMentioned = m.getText().contains("@" + me.getUserTag());
-
             if (!m.getSender().equals(me) && (isDirectMessage || isMentioned)) {
                 String text = isMentioned ? "Mentionné par " + m.getSender().getName() : "Message privé";
-                
                 Object source = m.getSender(); 
                 if (isMentioned && !isDirectMessage) {
                     source = database.getChannels().stream()
                             .filter(c -> c.getUuid().equals(m.getRecipient()))
-                            .findFirst()
-                            .map(c -> (Object) c)
-                            .orElse(m.getSender());
+                            .findFirst().map(c -> (Object) c).orElse(m.getSender());
                 }
                 addNotificationWithPersistence(text, m, source, prefs);
             }
         }
     }
+
     private void addNotificationWithPersistence(String text, Message m, Object source, Preferences prefs) {
         notificationListView.addNotification(text, m, source, () -> {
-        	prefs.putBoolean(m.getUuid().toString(), true);
-        	try {
-                prefs.flush();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            prefs.putBoolean(m.getUuid().toString(), true);
+            try { prefs.flush(); } catch (Exception e) { e.printStackTrace(); }
         });
     }
 
     public void setFilter(String query) { this.view.setFilter(query); }
 
-
-
     public List<Message> getFilteredMessages(String searchString) {
         User me = session.getConnectedUser();
-        if (me == null || currentRecipient == null) {
-            return new ArrayList<>();
-        }
+        if (me == null || currentRecipient == null) return new ArrayList<>();
         UUID currentUuid = currentRecipient.getUuid();
         return database.getMessages().stream()
             .filter(msg -> {
                 boolean matchesRecipient = false;
-
                 if (currentRecipient instanceof Channel) {
                     matchesRecipient = msg.getRecipient().equals(currentUuid);
-                } 
-                else if (currentRecipient instanceof User) {
+                } else if (currentRecipient instanceof User) {
                     boolean sentByMe = msg.getSender().equals(me) && msg.getRecipient().equals(currentUuid);
                     boolean sentByOther = msg.getSender().getUuid().equals(currentUuid) && msg.getRecipient().equals(me.getUuid());
                     matchesRecipient = sentByMe || sentByOther;
@@ -146,10 +129,14 @@ public void sendMessage(String text) {
         this.dataManager.deleteMessage(message, session.getConnectedUser());
     }
 
-    public MessageListView getView() { return view; }
-    public boolean isOwnMessage(Message m) { return session.getConnectedUser() != null && m.getSender().equals(session.getConnectedUser()); }
-    public void setNotificationManager(NotificationListView nm) {
-        this.notificationListView = nm;
+    public MessageListView getView() { 
+    	return view; 
+    }
+    public boolean isOwnMessage(Message m) {
+    	return session.getConnectedUser() != null && m.getSender().equals(session.getConnectedUser()); 
+    }
+    public void setNotificationManager(NotificationListView nm) { 
+    	this.notificationListView = nm; 
     }
     
     @Override 
@@ -160,16 +147,11 @@ public void sendMessage(String text) {
         boolean isDirectMessage = m.getRecipient().equals(me.getUuid());
         boolean isMentioned = m.getText().contains("@" + me.getUserTag());
         if (notificationListView != null && (isDirectMessage || isMentioned)) {
-            String text;
-            Object source; 
-
+            String text; Object source;
             if (isMentioned && !isDirectMessage) {
                 text = "Vous avez été mentionné dans un canal";
-                source = database.getChannels().stream()
-                                 .filter(c -> c.getUuid().equals(m.getRecipient()))
-                                 .findFirst()
-                                 .map(c -> (Object) c) 
-                                 .orElse(m.getSender()); 
+                source = database.getChannels().stream().filter(c -> c.getUuid().equals(m.getRecipient()))
+                                 .findFirst().map(c -> (Object) c).orElse(m.getSender()); 
             } else {
                 text = "Vous avez reçu un message de " + m.getSender().getName();
                 source = m.getSender();
@@ -177,11 +159,7 @@ public void sendMessage(String text) {
             Preferences prefs = Preferences.userNodeForPackage(MessageController.class).node(me.getUuid().toString());
             notificationListView.addNotification(text, m, source, () -> {
                 prefs.putBoolean(m.getUuid().toString(), true);
-                try {
-                    prefs.flush();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                try { prefs.flush(); } catch (Exception e) { e.printStackTrace(); }
             });
         }
     }

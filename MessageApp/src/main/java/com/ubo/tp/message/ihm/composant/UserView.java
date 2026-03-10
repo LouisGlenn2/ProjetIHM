@@ -15,10 +15,8 @@ public class UserView extends JPanel {
     private final Color hoverColor = new Color(232, 240, 254);
     private final Color borderColor = new Color(218, 220, 224);
     
-    // --- COULEURS FLASHY POUR LE TEST ---
-    private final Color onlineColor = new Color(46, 204, 113); // VERT
-    private final Color offlineColor = new Color(231, 76, 60); // ROUGE (Vif au lieu de gris)
-
+    private final Color onlineColor = new Color(46, 204, 113); 
+    private final Color offlineColor = new Color(231, 76, 60); 
     public UserView(User user) {
         this.setLayout(new BorderLayout(15, 0));
         this.setPreferredSize(new Dimension(220, 65));
@@ -27,28 +25,20 @@ public class UserView extends JPanel {
         this.setBorder(new EmptyBorder(10, 15, 10, 15));
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        // --- INDICATEUR DE STATUT ---
         JPanel statusPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
-                super.paintComponent(g); // Toujours appeler super
+                super.paintComponent(g); 
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
-                // On récupère l'état
                 boolean isOnline = user.isOnline();
-                
-                // Dessin du rond
                 g2.setColor(isOnline ? onlineColor : offlineColor);
                 int size = 12;
                 int y = (getHeight() - size) / 2;
                 g2.fillOval(0, y, size, size);
-                
-                // Bordure blanche pour le style
                 g2.setColor(UserView.this.getBackground());
                 g2.setStroke(new BasicStroke(1.5f));
                 g2.drawOval(0, y, size, size);
-                
                 g2.dispose();
             }
         };
@@ -56,7 +46,6 @@ public class UserView extends JPanel {
         statusPanel.setPreferredSize(new Dimension(15, 45));
         this.add(statusPanel, BorderLayout.WEST);
 
-        // --- INFOS ---
         JPanel infoPanel = new JPanel(new GridLayout(2, 1, 0, 2));
         infoPanel.setOpaque(false);
 
@@ -99,7 +88,6 @@ public class UserView extends JPanel {
 
     public void addSelectionListener(MouseAdapter adapter) {
         this.addMouseListener(adapter);
-        // Propagation du listener à tous les enfants (important pour le clic)
         for (Component c : getComponents()) {
             c.addMouseListener(adapter);
             if (c instanceof Container) {

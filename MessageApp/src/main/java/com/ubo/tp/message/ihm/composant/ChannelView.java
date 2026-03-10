@@ -24,7 +24,6 @@ public class ChannelView extends JPanel {
         this.setBorder(new EmptyBorder(5, 10, 5, 10));
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        // --- ICONE PERSONNALISÉE (DESSINÉE) ---
         boolean isPrivate = channel.getUsers() != null && !channel.getUsers().isEmpty();
         
         JPanel iconPanel = new JPanel() {
@@ -36,12 +35,10 @@ public class ChannelView extends JPanel {
                 g2.setColor(new Color(127, 140, 141));
                 
                 if (isPrivate) {
-                    // DESSIN D'UN CADENAS SIMPLE
                     g2.setStroke(new BasicStroke(1.5f));
-                    g2.drawRoundRect(4, 12, 10, 8, 2, 2); // Base
-                    g2.drawArc(6, 7, 6, 10, 0, 180);      // Anse
+                    g2.drawRoundRect(4, 12, 10, 8, 2, 2); 
+                    g2.drawArc(6, 7, 6, 10, 0, 180);     
                 } else {
-                    // DESSIN D'UN HASHTAG #
                     g2.setFont(new Font("Monospaced", Font.BOLD, 18));
                     g2.drawString("#", 2, 22);
                 }
@@ -52,13 +49,11 @@ public class ChannelView extends JPanel {
         iconPanel.setPreferredSize(new Dimension(20, 30));
         this.add(iconPanel, BorderLayout.WEST);
 
-        // --- NOM DU CANAL ---
         JLabel nameLabel = new JLabel(channel.getName());
         nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
         nameLabel.setForeground(activeTextColor);
         this.add(nameLabel, BorderLayout.CENTER);
 
-        // --- ACTIONS (Éditer / Supprimer) ---
         if (channel.getCreator().equals(controller.getConnectedUser())) {
             JPanel actionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
             actionsPanel.setOpaque(false);
@@ -93,7 +88,6 @@ public class ChannelView extends JPanel {
             this.add(actionsPanel, BorderLayout.EAST);
         }
 
-        // --- HOVER & CLICK ---
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) { controller.selectChannel(channel); }

@@ -18,7 +18,6 @@ public class SearchView extends JPanel {
         this.setPreferredSize(new Dimension(350, 450));
         this.setBackground(Color.WHITE);
 
-        // --- 1. BARRE DE RECHERCHE STYLE "SPOTLIGHT" ---
         JTextField searchField = new JTextField();
         searchField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         searchField.setPreferredSize(new Dimension(0, 50));
@@ -29,7 +28,6 @@ public class SearchView extends JPanel {
         
         setupPlaceholder(searchField, "Rechercher (@ pour utilisateur, # pour canal)");
 
-        // --- 2. PANNEAU DE RÉSULTATS ---
         JPanel resultsPanel = new JPanel();
         resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
         resultsPanel.setBackground(Color.WHITE);
@@ -39,13 +37,11 @@ public class SearchView extends JPanel {
             public void keyReleased(KeyEvent e) {
                 String query = searchField.getText();
                 resultsPanel.removeAll();
-                
-                // On ne cherche que si le texte n'est pas le placeholder et pas vide
                 if (!query.isEmpty() && !query.equals("Rechercher (@ pour utilisateur, # pour canal)")) {
                     List<IMessageRecipient> matches = searchController.getSearchResults(query);
                     for (IMessageRecipient r : matches) {
                         resultsPanel.add(createResultItem(r, searchController));
-                        resultsPanel.add(Box.createVerticalStrut(2)); // Petit espacement
+                        resultsPanel.add(Box.createVerticalStrut(2)); 
                     }
                 }
                 
@@ -73,7 +69,6 @@ public class SearchView extends JPanel {
         item.setBorder(new EmptyBorder(5, 15, 5, 15));
         item.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Détection du type pour l'icône et le texte
         String icon = (recipient instanceof User) ? "👤" : "💬";
         String labelText = (recipient instanceof User) ? 
                 "@" + ((User)recipient).getUserTag() : 
@@ -89,7 +84,6 @@ public class SearchView extends JPanel {
         item.add(lblIcon, BorderLayout.WEST);
         item.add(lblName, BorderLayout.CENTER);
 
-        // Effets de survol (Hover)
         item.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {

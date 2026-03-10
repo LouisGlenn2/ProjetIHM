@@ -20,7 +20,6 @@ public class ListUserView extends JPanel {
     private final JPanel listContainer;
     private String currentFilter = "";
     
-    // Texte du placeholder
     private final String PLACEHOLDER = "Filtrer par nom ou @tag...";
 
     public ListUserView(List<User> users) {
@@ -29,18 +28,16 @@ public class ListUserView extends JPanel {
         this.setBackground(Color.WHITE);
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // --- BARRE DE RECHERCHE AVEC PLACEHOLDER ---
         JTextField searchField = new JTextField(PLACEHOLDER);
         searchField.setPreferredSize(new Dimension(0, 35));
         searchField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        searchField.setForeground(Color.GRAY); // Couleur grise au début
+        searchField.setForeground(Color.GRAY); 
         
         searchField.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
 
-        // Gestion du Focus pour faire disparaître/apparaître le texte
         searchField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -65,7 +62,6 @@ public class ListUserView extends JPanel {
             public void changedUpdate(DocumentEvent e) { updateFilter(); }
             private void updateFilter() {
                 String text = searchField.getText();
-                // On ne filtre pas si c'est le texte du placeholder
                 if (text.equals(PLACEHOLDER)) {
                     currentFilter = "";
                 } else {
@@ -81,7 +77,6 @@ public class ListUserView extends JPanel {
         topPanel.add(searchField, BorderLayout.CENTER);
         this.add(topPanel, BorderLayout.NORTH);
 
-        // --- LISTE DES UTILISATEURS ---
         this.listContainer = new JPanel();
         this.listContainer.setLayout(new BoxLayout(listContainer, BoxLayout.Y_AXIS));
         this.listContainer.setBackground(Color.WHITE);

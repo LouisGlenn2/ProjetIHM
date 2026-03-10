@@ -91,7 +91,6 @@ public class SignupView extends JPanel {
             controller.handleSignup(mTagField.getText(), new String(mPasswordField.getPassword()), mNameField.getText())
         );
 
-        // Action du bouton retour
         btnBack.addActionListener(e -> {
             Window win = SwingUtilities.getWindowAncestor(this);
             if (win != null) {
@@ -127,7 +126,7 @@ public class SignupView extends JPanel {
         btn.setContentAreaFilled(false);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         if (!isPrimary) {
-            btn.setForeground(new Color(52, 152, 219)); // Bleu pour le lien de retour
+            btn.setForeground(new Color(52, 152, 219));
         }
     }
 

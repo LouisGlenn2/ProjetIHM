@@ -32,12 +32,16 @@ public class ChannelController implements IDatabaseObserver {
         this.database.addObserver(this);
     }
 
-    // --- SETTERS POUR L'INJECTION DE DÉPENDANCES ---
-    public void setUserListController(UserListController ulc) { this.userListController = ulc; }
-    public void setMessageListController(MessageController mlc) { this.messageListController = mlc; }
-    public void setSearchController(SearchController sc) { this.searchController = sc; }
+    public void setUserListController(UserListController ulc) { 
+    	this.userListController = ulc; 
+    }
+    public void setMessageListController(MessageController mlc) {
+    	this.messageListController = mlc; 
+    }
+    public void setSearchController(SearchController sc) {
+    	this.searchController = sc; 
+    }
 
-    // --- ACTIONS ---
     public void selectChannel(Channel channel) {
         if (userListController != null) userListController.updateViewForChannel(channel);
         if (messageListController != null) messageListController.setRecipient(channel);
@@ -74,14 +78,22 @@ public class ChannelController implements IDatabaseObserver {
         
     }
 
-    // --- GETTERS ---
-    public List<User> getAllAvailableUsers() { return new ArrayList<>(database.getUsers()); }
-    public Set<Channel> getChannels() { return database.getChannels(); }
-    public User getConnectedUser() { return session.getConnectedUser(); }
-    public SearchController getSearchController() { return searchController; }
-    public ChannelListView getView() { return view; }
+    public List<User> getAllAvailableUsers() {
+    	return new ArrayList<>(database.getUsers());
+    }
+    public Set<Channel> getChannels() { 
+    	return database.getChannels(); 
+    }
+    public User getConnectedUser() {
+    	return session.getConnectedUser(); 
+    }
+    public SearchController getSearchController() { 
+    	return searchController;
+    }
+    public ChannelListView getView() {
+    	return view; 
+    }
 
-    // --- NOTIFICATIONS BASE DE DONNÉES ---
     @Override public void notifyChannelAdded(Channel c) { view.refresh(); }
     @Override public void notifyChannelDeleted(Channel c) { view.refresh(); }
     @Override public void notifyChannelModified(Channel c) { view.refresh(); }

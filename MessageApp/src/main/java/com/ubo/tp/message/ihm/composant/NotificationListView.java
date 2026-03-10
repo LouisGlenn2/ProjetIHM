@@ -30,32 +30,25 @@ public class NotificationListView extends JPanel {
     public NotificationListView(MessageController controller) {
         this.controller = controller;
         
-        // Configuration du panel principal (transparent pour flotter sur l'UI)
         this.setOpaque(false); 
         this.setLayout(new BorderLayout());
         this.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // Panel interne pour empiler les NotificationView
         stackPanel = new JPanel();
         stackPanel.setOpaque(false);
         stackPanel.setLayout(new BoxLayout(stackPanel, BoxLayout.Y_AXIS));
 
-        // Badge de compteur (Pastille rouge moderne)
         counterLabel = new JLabel();
         counterLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
         counterLabel.setOpaque(true);
-        counterLabel.setBackground(new Color(231, 76, 60)); // Rouge corail
+        counterLabel.setBackground(new Color(231, 76, 60)); 
         counterLabel.setForeground(Color.WHITE);
         counterLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        // Ajout d'arrondis via une bordure vide pour le padding interne
         counterLabel.setBorder(new EmptyBorder(4, 10, 4, 10));
         counterLabel.setVisible(false);
 
-        // Assemblage
-        // Le stackPanel au centre pour occuper l'espace
         this.add(stackPanel, BorderLayout.CENTER); 
         
-        // Le compteur en bas à droite
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         footer.setOpaque(false);
         footer.add(counterLabel);
@@ -68,9 +61,7 @@ public class NotificationListView extends JPanel {
     public void addNotification(String text, Message msg, Object senderSource, Runnable onRemove) {
         final NotificationView[] itemWrapper = new NotificationView[1];
         
-        // Création de la vue individuelle avec ses callbacks
         itemWrapper[0] = new NotificationView(text, msg, () -> {
-            // Action lors du clic sur le texte : on change de destinataire
             if (senderSource instanceof User) {
                 controller.setRecipient((User) senderSource);
             } else if (senderSource instanceof Channel) {
@@ -79,12 +70,10 @@ public class NotificationListView extends JPanel {
             onRemove.run(); 
             removeNotification(itemWrapper[0]); 
         }, () -> {
-            // Action lors du clic sur la croix (fermeture)
             onRemove.run(); 
             removeNotification(itemWrapper[0]); 
         });
         
-        // On ajoute à la liste et on rafraîchit
         notifications.add(itemWrapper[0]);
         refreshUI();
     }
@@ -96,7 +85,6 @@ public class NotificationListView extends JPanel {
         if (item != null) {
             notifications.remove(item);
         } else if (!notifications.isEmpty()) {
-            // Sécurité : supprime la plus ancienne si l'item est nul
             notifications.remove(0);
         }
         refreshUI();
@@ -108,32 +96,27 @@ public class NotificationListView extends JPanel {
     private void refreshUI() {
         stackPanel.removeAll();
         
-        // On utilise un Glue pour que les notifications "tombent" vers le bas
         stackPanel.add(Box.createVerticalGlue());
         
         int size = notifications.size();
-        int maxDisplayed = 3; // On ne montre que les 3 dernières pour ne pas saturer l'écran
+        int maxDisplayed = 3; 
 
         if (size > maxDisplayed) {
             int extraCount = size - maxDisplayed;
             counterLabel.setText("+" + extraCount + " notifications");
             counterLabel.setVisible(true);
             
-            // On affiche uniquement les 'maxDisplayed' derniers éléments de la liste
             for (int i = size - maxDisplayed; i < size; i++) {
                 stackPanel.add(notifications.get(i));
-                stackPanel.add(Box.createVerticalStrut(8)); // Espace entre les toasts
+                stackPanel.add(Box.createVerticalStrut(8)); 
             }
         } else {
-            // Moins de 3 notifications : on cache le compteur et on affiche tout
             counterLabel.setVisible(false);
             for (NotificationView item : notifications) {
                 stackPanel.add(item);
                 stackPanel.add(Box.createVerticalStrut(8));
             }
         }
-
-        // Forcer Swing à recalculer le layout et redessiner
         stackPanel.revalidate();
         stackPanel.repaint();
     }

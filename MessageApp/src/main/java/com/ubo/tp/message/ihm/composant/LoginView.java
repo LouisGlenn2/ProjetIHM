@@ -17,9 +17,7 @@ public class LoginView extends JPanel {
     private final JButton btnLogin;
     private final JButton btnGoSignup; 
     private final LoginController controller;
-
-    // Couleurs du thème
-    private final Color primaryColor = new Color(52, 152, 219); // Bleu moderne
+    private final Color primaryColor = new Color(52, 152, 219); 
     private final Color backgroundColor = Color.WHITE;
     private final Color textColor = new Color(44, 62, 80);
 
@@ -33,18 +31,16 @@ public class LoginView extends JPanel {
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // --- TITRE ---
         JLabel titleLabel = new JLabel("Bienvenue", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
         titleLabel.setForeground(textColor);
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
-        gbc.insets = new Insets(0, 0, 30, 0); // Plus d'espace sous le titre
+        gbc.insets = new Insets(0, 0, 30, 0); 
         add(titleLabel, gbc);
 
-        // --- CHAMPS DE SAISIE ---
-        gbc.gridwidth = 2; // Les champs prennent toute la largeur
+        gbc.gridwidth = 2; 
         gbc.insets = new Insets(5, 0, 5, 0);
 
         addLabel(gbc, "Nom d'utilisateur", 1);
@@ -57,7 +53,6 @@ public class LoginView extends JPanel {
         gbc.gridy = 4;
         add(mPasswordField, gbc);
 
-        // --- BOUTON CONNEXION (Style plein) ---
         btnLogin = new JButton("Se connecter") {
             @Override
             protected void paintComponent(Graphics g) {
@@ -79,14 +74,12 @@ public class LoginView extends JPanel {
         gbc.insets = new Insets(25, 0, 5, 0);
         add(btnLogin, gbc);
 
-        // --- BOUTON INSCRIPTION (Style texte) ---
         btnGoSignup = new JButton("Pas encore de compte ? S'inscrire");
         styleButton(btnGoSignup, false);
         gbc.gridy = 6;
         gbc.insets = new Insets(5, 0, 5, 0);
         add(btnGoSignup, gbc);
 
-        // --- LABEL ERREUR ---
         errorLabel = new JLabel("", SwingConstants.CENTER);
         errorLabel.setForeground(new Color(231, 76, 60));
         errorLabel.setFont(new Font("Segoe UI", Font.ITALIC, 12));

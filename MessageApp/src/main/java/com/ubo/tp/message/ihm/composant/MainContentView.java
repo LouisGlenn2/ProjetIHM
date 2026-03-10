@@ -46,10 +46,6 @@ public class MainContentView extends JPanel {
                         g.setColor(new Color(230, 230, 230)); 
                         g.fillRect(0, 0, getSize().width, getSize().height);
                     }
-
-                    @Override
-                    public void setBorder(javax.swing.border.Border b) {
-                    }
                 };
             }
         });

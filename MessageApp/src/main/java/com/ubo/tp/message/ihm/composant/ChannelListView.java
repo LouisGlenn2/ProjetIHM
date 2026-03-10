@@ -21,7 +21,6 @@ public class ChannelListView extends JPanel {
         this.setPreferredSize(new Dimension(240, 0));
         this.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // --- EN-TÊTE ---
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setOpaque(false);
         headerPanel.setBorder(new EmptyBorder(0, 5, 10, 5));
@@ -31,7 +30,6 @@ public class ChannelListView extends JPanel {
         title.setForeground(new Color(149, 165, 166));
         headerPanel.add(title, BorderLayout.WEST);
 
-        // Bouton Ajouter (+)
         JButton btnAdd = new JButton("+");
         btnAdd.setFont(new Font("Arial", Font.BOLD, 18));
         btnAdd.setFocusPainted(false);
@@ -44,7 +42,6 @@ public class ChannelListView extends JPanel {
 
         this.add(headerPanel, BorderLayout.NORTH);
 
-        // --- LISTE DES CANAUX ---
         listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
         listPanel.setBackground(Color.WHITE);
@@ -134,7 +131,6 @@ public class ChannelListView extends JPanel {
                     model.addElement(u);
                 }
             }
-            // Préserver la sélection lors du filtrage
             for (User u : selectedNow) {
                 int index = model.indexOf(u);
                 if (index != -1) userJList.addSelectionInterval(index, index);
