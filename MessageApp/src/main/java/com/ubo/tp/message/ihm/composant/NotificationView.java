@@ -28,7 +28,7 @@ public class NotificationView extends JPanel {
             BorderFactory.createLineBorder(new Color(100, 100, 100), 1),
             BorderFactory.createEmptyBorder(2, 5, 2, 5)
         ));
-        Dimension fixedSize = new Dimension(250, 20); 
+        Dimension fixedSize = new Dimension(250, 30); 
         this.setPreferredSize(fixedSize);
         this.setMaximumSize(fixedSize);
         this.setMinimumSize(fixedSize);

@@ -37,25 +37,27 @@ public class NotificationListView extends JPanel {
 		counterLabel.setForeground(Color.WHITE);
 		counterLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		counterLabel.setVisible(false);
-
-		// stackPanel au centre, counterLabel au sud (en bas)
 		this.add(stackPanel, BorderLayout.CENTER); 
 		this.add(counterLabel, BorderLayout.SOUTH); 
 	}
 
-	public void addNotification(String text, Message msg, Object senderSource) {
-		final NotificationView[] itemWrapper = new NotificationView[1];
-		itemWrapper[0] = new NotificationView(text, msg, () -> {
-			if (senderSource instanceof User) {
-				controller.setRecipient((User) senderSource);
-			} else if (senderSource instanceof Channel) {
-				controller.setRecipient((Channel) senderSource);
-			}
-			removeNotification(itemWrapper[0]); 
-		}, () -> removeNotification(itemWrapper[0]));
-		
-		notifications.add(itemWrapper[0]);
-		refreshUI();
+	public void addNotification(String text, Message msg, Object senderSource, Runnable onRemove) {
+	    final NotificationView[] itemWrapper = new NotificationView[1];
+	    itemWrapper[0] = new NotificationView(text, msg, () -> {
+	        if (senderSource instanceof User) {
+	            controller.setRecipient((User) senderSource);
+	        } else if (senderSource instanceof Channel) {
+	            controller.setRecipient((Channel) senderSource);
+	        }
+	        onRemove.run(); 
+	        removeNotification(itemWrapper[0]); 
+	    }, () -> {
+	        onRemove.run(); 
+	        removeNotification(itemWrapper[0]); 
+	    });
+	    
+	    notifications.add(itemWrapper[0]);
+	    refreshUI();
 	}
 
 	private void removeNotification(NotificationView item) {
@@ -69,11 +71,7 @@ public class NotificationListView extends JPanel {
 
 	private void refreshUI() {
 		stackPanel.removeAll();
-		
-		// SOLUTION ICI : On ajoute de la "colle" verticale au début.
-		// Elle va prendre toute la place vide et pousser les notifs vers le bas.
 		stackPanel.add(Box.createVerticalGlue());
-
 		int size = notifications.size();
 		if (size > 3) {
 			int nombreNotiSup = size - 3;

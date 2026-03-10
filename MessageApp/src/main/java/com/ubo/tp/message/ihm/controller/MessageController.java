@@ -3,6 +3,7 @@ package com.ubo.tp.message.ihm.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
@@ -65,11 +66,18 @@ public class MessageController implements IDatabaseObserver {
     public void loadMissedNotifications() {
         User me = session.getConnectedUser();
         if (me == null || notificationListView == null) return;
+        Preferences prefs = Preferences.userNodeForPackage(MessageController.class).node(me.getUuid().toString());
         for (Message m : database.getMessages()) {
+        	if (prefs.getBoolean(m.getUuid().toString(), false)) {
+        	    continue;
+        	}
+
             boolean isDirectMessage = m.getRecipient().equals(me.getUuid());
             boolean isMentioned = m.getText().contains("@" + me.getUserTag());
+
             if (!m.getSender().equals(me) && (isDirectMessage || isMentioned)) {
                 String text = isMentioned ? "Mentionné par " + m.getSender().getName() : "Message privé";
+                
                 Object source = m.getSender(); 
                 if (isMentioned && !isDirectMessage) {
                     source = database.getChannels().stream()
@@ -78,9 +86,19 @@ public class MessageController implements IDatabaseObserver {
                             .map(c -> (Object) c)
                             .orElse(m.getSender());
                 }
-                notificationListView.addNotification(text, m, source);
+                addNotificationWithPersistence(text, m, source, prefs);
             }
         }
+    }
+    private void addNotificationWithPersistence(String text, Message m, Object source, Preferences prefs) {
+        notificationListView.addNotification(text, m, source, () -> {
+        	prefs.putBoolean(m.getUuid().toString(), true);
+        	try {
+                prefs.flush();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void setFilter(String query) { this.view.setFilter(query); }
@@ -130,19 +148,16 @@ public class MessageController implements IDatabaseObserver {
     @Override 
     public void notifyMessageAdded(Message m) {
         this.view.refresh();
-        
         User me = session.getConnectedUser();
         if (me == null || m.getSender().equals(me)) return;
-
         boolean isDirectMessage = m.getRecipient().equals(me.getUuid());
         boolean isMentioned = m.getText().contains("@" + me.getUserTag());
-
         if (notificationListView != null && (isDirectMessage || isMentioned)) {
             String text;
             Object source; 
 
             if (isMentioned && !isDirectMessage) {
-                text = "Vous avez été mentionné   dans un canal";
+                text = "Vous avez été mentionné dans un canal";
                 source = database.getChannels().stream()
                                  .filter(c -> c.getUuid().equals(m.getRecipient()))
                                  .findFirst()
@@ -152,8 +167,15 @@ public class MessageController implements IDatabaseObserver {
                 text = "Vous avez reçu un message de " + m.getSender().getName();
                 source = m.getSender();
             }
-
-            notificationListView.addNotification(text, m, source);
+            Preferences prefs = Preferences.userNodeForPackage(MessageController.class).node(me.getUuid().toString());
+            notificationListView.addNotification(text, m, source, () -> {
+                prefs.putBoolean(m.getUuid().toString(), true);
+                try {
+                    prefs.flush();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }
     }
 
