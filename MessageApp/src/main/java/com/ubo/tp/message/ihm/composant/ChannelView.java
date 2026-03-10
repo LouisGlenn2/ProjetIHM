@@ -1,7 +1,16 @@
 package com.ubo.tp.message.ihm.composant;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.ihm.controller.ChannelController;
 
@@ -36,11 +45,12 @@ public class ChannelView extends JPanel {
             JButton btnDelete = new JButton("🗑");
             btnDelete.setForeground(Color.RED);
             btnDelete.addActionListener(e -> {
-                int choice = JOptionPane.showConfirmDialog(this, "Supprimer le canal " + channel.getName() + " ?");
+                int choice = JOptionPane.showConfirmDialog(this, "Supprimer le canal " + channel.getName() + " ?", "Confirmation", JOptionPane.YES_NO_OPTION);
                 if (choice == JOptionPane.YES_OPTION) {
-                    // controller.deleteChannel(channel);
+                    controller.deleteChannel(channel, channel.getCreator());
                 }
             });
+     
             actionsPanel.add(btnDelete);
 
             this.add(actionsPanel, BorderLayout.EAST);

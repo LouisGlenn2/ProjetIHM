@@ -190,14 +190,9 @@ public class DataManager {
 			return;
 		}
 
-		// Générer le chemin du fichier utilisateur
 		String userFilePath = mEntityManager.getUserFilePath(user);
-		if (userFilePath == null) {
-			System.err.println("Impossible de générer le chemin du fichier utilisateur.");
-			return;
-		}
-
 		File userFile = new File(userFilePath);
+
 		if (userFile.exists()) {
 			if (userFile.delete()) {
 				System.out.println("Fichier utilisateur supprimé : " + userFile.getAbsolutePath());
@@ -210,13 +205,19 @@ public class DataManager {
 	}	
 
 	public void deleteMessage(Message message, User currentUser) {
-		if (message != null && currentUser != null && 
-			message.getSender().getUuid().equals(currentUser.getUuid())) {
-			
-			String path = mEntityManager.getMessageFilePath(message);
-			if (path != null) {
-				new File(path).delete();
-			}
+		String path = mEntityManager.getMessageFilePath(message);
+		if (path != null) {
+			new File(path).delete();
+		}
+	}
+	public void deleteChannel(Channel channel) {
+		String path = channel.getUuid().toString()+ ".chn";
+		System.out.println(mEntityManager.mDirectoryPath + File.separator + path);
+		
+		File channelFile = new File(mEntityManager.mDirectoryPath + File.separator + path);
+
+		if (channelFile.exists()) {
+			channelFile.delete();
 		}
 	}
 }

@@ -2,6 +2,7 @@ package com.ubo.tp.message.ihm.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.ubo.tp.message.core.DataManager;
