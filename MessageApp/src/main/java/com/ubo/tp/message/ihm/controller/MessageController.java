@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
 import com.ubo.tp.message.core.DataManager;
 import com.ubo.tp.message.core.database.IDatabase;
 import com.ubo.tp.message.core.database.IDatabaseObserver;
@@ -14,6 +17,7 @@ import com.ubo.tp.message.datamodel.IMessageRecipient;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.composant.MessageListView;
+import com.ubo.tp.message.ihm.composant.NotificationListView;
 
 public class MessageController implements IDatabaseObserver {
     private final MessageListView view;
@@ -21,6 +25,7 @@ public class MessageController implements IDatabaseObserver {
     private final DataManager dataManager;
     private final ISession session;
     private IMessageRecipient currentRecipient; 
+    private NotificationListView notificationListView;
 
     public MessageController(IDatabase database, DataManager dataManager, ISession session) {
         this.database = database;
@@ -42,10 +47,39 @@ public class MessageController implements IDatabaseObserver {
     public void sendMessage(String text) {
         if (text != null && !text.trim().isEmpty() && currentRecipient != null) {
             User me = session.getConnectedUser();
-            java.util.UUID recipientUUID = currentRecipient.getUuid();
-            System.out.println("id associé message"+recipientUUID);
+            UUID recipientUUID = currentRecipient.getUuid();
             Message newMessage = new Message(me, recipientUUID, text);
             this.dataManager.sendMessage(newMessage);
+            checkMentions(text);
+        }
+    }
+
+    private void checkMentions(String text) {
+        for (User user : database.getUsers()) {
+            String mentionTag = "@" + user.getUserTag();
+            if (text.contains(mentionTag)) {
+                System.out.println("Utilisateur mentionné : " + user.getName());
+            }
+        }
+    }
+    public void loadMissedNotifications() {
+        User me = session.getConnectedUser();
+        if (me == null || notificationListView == null) return;
+        for (Message m : database.getMessages()) {
+            boolean isDirectMessage = m.getRecipient().equals(me.getUuid());
+            boolean isMentioned = m.getText().contains("@" + me.getUserTag());
+            if (!m.getSender().equals(me) && (isDirectMessage || isMentioned)) {
+                String text = isMentioned ? "Mentionné par " + m.getSender().getName() : "Message privé";
+                Object source = m.getSender(); 
+                if (isMentioned && !isDirectMessage) {
+                    source = database.getChannels().stream()
+                            .filter(c -> c.getUuid().equals(m.getRecipient()))
+                            .findFirst()
+                            .map(c -> (Object) c)
+                            .orElse(m.getSender());
+                }
+                notificationListView.addNotification(text, m, source);
+            }
         }
     }
 
@@ -89,8 +123,40 @@ public class MessageController implements IDatabaseObserver {
 
     public MessageListView getView() { return view; }
     public boolean isOwnMessage(Message m) { return session.getConnectedUser() != null && m.getSender().equals(session.getConnectedUser()); }
+    public void setNotificationManager(NotificationListView nm) {
+        this.notificationListView = nm;
+    }
+    
+    @Override 
+    public void notifyMessageAdded(Message m) {
+        this.view.refresh();
+        
+        User me = session.getConnectedUser();
+        if (me == null || m.getSender().equals(me)) return;
 
-    @Override public void notifyMessageAdded(Message m) { this.view.refresh(); }
+        boolean isDirectMessage = m.getRecipient().equals(me.getUuid());
+        boolean isMentioned = m.getText().contains("@" + me.getUserTag());
+
+        if (notificationListView != null && (isDirectMessage || isMentioned)) {
+            String text;
+            Object source; 
+
+            if (isMentioned && !isDirectMessage) {
+                text = "Vous avez été mentionné   dans un canal";
+                source = database.getChannels().stream()
+                                 .filter(c -> c.getUuid().equals(m.getRecipient()))
+                                 .findFirst()
+                                 .map(c -> (Object) c) 
+                                 .orElse(m.getSender()); 
+            } else {
+                text = "Vous avez reçu un message de " + m.getSender().getName();
+                source = m.getSender();
+            }
+
+            notificationListView.addNotification(text, m, source);
+        }
+    }
+
     @Override public void notifyMessageDeleted(Message m) { this.view.refresh(); }
     @Override public void notifyMessageModified(Message m) { this.view.refresh(); }
     @Override public void notifyUserAdded(User u) { this.view.refresh(); }

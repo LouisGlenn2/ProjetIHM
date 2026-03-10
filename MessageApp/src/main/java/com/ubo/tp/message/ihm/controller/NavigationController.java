@@ -11,6 +11,6 @@ public class NavigationController {
     }
 
     public void showPage(JPanel page) {
-        mainView.setContent(page);
+    	mainView.setContent(page);    
     }
 }

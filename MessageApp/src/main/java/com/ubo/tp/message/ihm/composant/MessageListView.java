@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -41,7 +43,14 @@ public class MessageListView extends JPanel {
         JPanel inputPanel = new JPanel(new BorderLayout());
         JTextField messageInput = new JTextField();
         JButton btnSend = new JButton("Envoyer");
-
+        messageInput.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (messageInput.getText().endsWith("@")) {
+                    System.out.println("Afficher la liste des membres pour mention...");
+                }
+            }
+        });
         ActionListener sendAction = e -> {
             controller.sendMessage(messageInput.getText());
             messageInput.setText("");
