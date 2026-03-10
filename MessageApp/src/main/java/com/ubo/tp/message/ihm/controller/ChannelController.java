@@ -1,6 +1,10 @@
 package com.ubo.tp.message.ihm.controller;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 import com.ubo.tp.message.core.DataManager;
 import com.ubo.tp.message.core.database.IDatabase;
 import com.ubo.tp.message.core.database.IDatabaseObserver;
@@ -15,7 +19,7 @@ public class ChannelController implements IDatabaseObserver {
     private final DataManager dataManager;
     private final ChannelListView view;
     private final ISession session;
-    
+
     private MessageController messageListController;
     private UserListController userListController;
     private SearchController searchController;
@@ -59,6 +63,15 @@ public class ChannelController implements IDatabaseObserver {
             Channel updated = new Channel(channel.getUuid(), channel.getCreator(), channel.getName(), selected);
             dataManager.sendChannel(updated);
         }
+    }
+
+    public void deleteChannel(Channel channel, User user){
+        if(channel.getCreator().equals(user)) {
+            dataManager.deleteChannel(channel);
+        }else {
+            System.out.println("Erreur, le channel ne vous appartiens pas");
+        }
+        
     }
 
     // --- GETTERS ---

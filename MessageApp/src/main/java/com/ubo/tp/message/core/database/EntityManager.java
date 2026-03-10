@@ -35,7 +35,7 @@ public class EntityManager implements IWatchableDirectoryObserver {
 	/**
 	 * Chemin d'accès au répertoire d'échange.
 	 */
-	protected String mDirectoryPath;
+	public String mDirectoryPath;
 
 	/**
 	 * Map reliant les UUID aux utilisateurs associés.
@@ -482,7 +482,7 @@ public class EntityManager implements IWatchableDirectoryObserver {
 			return null;
 		}
 	
-		return mDirectoryPath + File.separator + this.getFileNameByUserName(user.getName());
+		return mDirectoryPath + File.separator + user.getUuid() + ".usr";
 	}
 
 	public String getMessageFilePath(Message message) {
