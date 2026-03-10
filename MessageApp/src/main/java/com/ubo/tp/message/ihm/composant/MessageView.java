@@ -25,15 +25,13 @@ public class MessageView extends JPanel{
 	protected Color defaultBackgroundColor;
 	protected LineBorder defaultLineBorder;
 	
-	public MessageView(Message message,boolean ownMessage, boolean followed) {
+	public MessageView(Message message,boolean ownMessage) {
 		 this.setLayout(new GridBagLayout());
 		 this.setOpaque(true);
 		 this.defaultLineBorder =new LineBorder(Color.LIGHT_GRAY, 1, true);
 		 this.setBorder(defaultLineBorder);
 		 if (ownMessage) {
-		      this.defaultBackgroundColor = Color.CYAN;
-		    } else if (followed) {
-		      this.defaultBackgroundColor = Color.PINK;
+		      this.defaultBackgroundColor = Color.LIGHT_GRAY;
 		    } else {
 		      this.defaultBackgroundColor = Color.WHITE;
 		    }

@@ -1,14 +1,6 @@
 package com.ubo.tp.message.ihm.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-
+import java.util.*;
 import com.ubo.tp.message.core.DataManager;
 import com.ubo.tp.message.core.database.IDatabase;
 import com.ubo.tp.message.core.database.IDatabaseObserver;
@@ -25,7 +17,8 @@ public class ChannelController implements IDatabaseObserver {
     private final ISession session;
     
     private MessageController messageListController;
-    private UserListController userListController; 
+    private UserListController userListController;
+    private SearchController searchController;
 
     public ChannelController(IDatabase database, DataManager data, ISession session) {
         this.database = database;
@@ -35,89 +28,47 @@ public class ChannelController implements IDatabaseObserver {
         this.database.addObserver(this);
     }
 
-    public void setUserListController(UserListController ulc) {
-        this.userListController = ulc;
-    }
+    // --- SETTERS POUR L'INJECTION DE DÉPENDANCES ---
+    public void setUserListController(UserListController ulc) { this.userListController = ulc; }
+    public void setMessageListController(MessageController mlc) { this.messageListController = mlc; }
+    public void setSearchController(SearchController sc) { this.searchController = sc; }
 
-    public void setMessageListController(MessageController mlc) {
-        this.messageListController = mlc;
-    }
-
+    // --- ACTIONS ---
     public void selectChannel(Channel channel) {
-        this.userListController.updateViewForChannel(channel);
-        this.messageListController.setRecipient(channel);
-        
-        System.out.println("Canal sélectionné : " + channel.getName() + " UUID: " + channel.getUuid());
+        if (userListController != null) userListController.updateViewForChannel(channel);
+        if (messageListController != null) messageListController.setRecipient(channel);
+    }
+
+    public void selectUser(User user) {
+        if (messageListController != null) messageListController.setRecipient(user);
     }
 
     public void createChannel(String name, List<User> selectedUsers) {
-        User connectedUser = session.getConnectedUser();
-        if (connectedUser != null && name != null && !name.trim().isEmpty()) {
-            List<User> users = (selectedUsers != null) ? selectedUsers : new ArrayList<>();
-            Channel newChannel = new Channel(
-                java.util.UUID.randomUUID(), 
-                connectedUser,           
-                name,                      
-                users                      
-            );
-            
+        User me = session.getConnectedUser();
+        if (me != null && name != null && !name.trim().isEmpty()) {
+            Channel newChannel = new Channel(UUID.randomUUID(), me, name, selectedUsers);
             dataManager.sendChannel(newChannel);
         }
     }
 
-    public List<User> getAllAvailableUsers() {
-        return new ArrayList<>(database.getUsers());
-    }
-    public void openCreateChannelWithMembers() {
+    public void openEditChannelDialog(Channel channel) {
         List<User> allUsers = new ArrayList<>(database.getUsers());
-        List<User> selected = view.showUserSelectionDialog("Membres du canal", allUsers, null);
+        List<User> selected = view.showUserSelectionDialog("Gérer les membres : " + channel.getName(), allUsers, channel.getUsers());
         
         if (selected != null) {
-            String name = JOptionPane.showInputDialog(view, "Nom du canal :");
-            if (name != null && !name.isEmpty()) {
-                createChannel(name, selected);
-            }
+            Channel updated = new Channel(channel.getUuid(), channel.getCreator(), channel.getName(), selected);
+            dataManager.sendChannel(updated);
         }
-    }
-    
-    public void openEditChannelDialog(Channel channel) {
-        List<User> allAppUsers = new ArrayList<>(this.database.getUsers());
-        List<User> selectedUsers = view.showUserSelectionDialog(
-            "Gérer les membres de " + channel.getName(), 
-            allAppUsers, 
-            channel.getUsers() 
-        );
-        if (selectedUsers != null) {
-            Channel updatedChannel = new Channel(
-                channel.getUuid(), 
-                channel.getCreator(), 
-                channel.getName(), 
-                selectedUsers
-            );
-            this.dataManager.sendChannel(updatedChannel);
-        }
-    }
-    public List<User> showUserSelectionDialog(String title, List<User> allUsers, List<User> alreadySelected) {
-        DefaultListModel<User> listModel = new DefaultListModel<>();
-        for (User u : allUsers) listModel.addElement(u);
-
-        JList<User> userJList = new JList<>(listModel);
-        userJList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        if (alreadySelected != null) {
-            int[] indices = alreadySelected.stream()
-                    .mapToInt(allUsers::indexOf)
-                    .filter(i -> i != -1).toArray();
-            userJList.setSelectedIndices(indices);
-        }
-        int result = JOptionPane.showConfirmDialog(null, new JScrollPane(userJList), title, JOptionPane.OK_CANCEL_OPTION);
-        return (result == JOptionPane.OK_OPTION) ? userJList.getSelectedValuesList() : null;
     }
 
+    // --- GETTERS ---
+    public List<User> getAllAvailableUsers() { return new ArrayList<>(database.getUsers()); }
     public Set<Channel> getChannels() { return database.getChannels(); }
     public User getConnectedUser() { return session.getConnectedUser(); }
+    public SearchController getSearchController() { return searchController; }
     public ChannelListView getView() { return view; }
 
-    // Notifications (simplifié : rafraîchir la vue des canaux)
+    // --- NOTIFICATIONS BASE DE DONNÉES ---
     @Override public void notifyChannelAdded(Channel c) { view.refresh(); }
     @Override public void notifyChannelDeleted(Channel c) { view.refresh(); }
     @Override public void notifyChannelModified(Channel c) { view.refresh(); }

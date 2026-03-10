@@ -57,7 +57,7 @@ public class MessageListView extends JPanel {
         List<Message> messages = controller.getFilteredMessages(currentFilter);
 
         for (Message m : messages) {
-            MessageView mview = new MessageView(m, controller.isOwnMessage(m), false);
+            MessageView mview = new MessageView(m, controller.isOwnMessage(m));
             mview.setMaximumSize(new Dimension(Integer.MAX_VALUE, mview.getPreferredSize().height));
             listContainer.add(mview);
             listContainer.add(Box.createRigidArea(new Dimension(0, 5)));

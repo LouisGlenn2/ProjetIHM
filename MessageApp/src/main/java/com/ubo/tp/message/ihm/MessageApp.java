@@ -16,6 +16,7 @@ import com.ubo.tp.message.ihm.controller.ChannelController;
 import com.ubo.tp.message.ihm.controller.LoginController;
 import com.ubo.tp.message.ihm.controller.MessageController;
 import com.ubo.tp.message.ihm.controller.NavigationController;
+import com.ubo.tp.message.ihm.controller.SearchController;
 import com.ubo.tp.message.ihm.controller.SignupController;
 import com.ubo.tp.message.ihm.controller.UserEditController;
 import com.ubo.tp.message.ihm.controller.UserListController;
@@ -37,6 +38,7 @@ public class MessageApp implements ISessionObserver {
     protected MessageController mMessageController;
     protected UserListController mUserListController;
     protected UserEditController mUserEditController;
+    protected SearchController mSearchController;
     
     public MessageApp(DataManager dataManager, IDatabase database) {
         this.mDataManager = dataManager;
@@ -82,6 +84,8 @@ public class MessageApp implements ISessionObserver {
         this.mChannelController = new ChannelController(mDatabase,mDataManager,mSession);
         this.mUserListController = new UserListController(mDatabase);
         mUserListController.setMessageController(mMessageController);
+        this.mSearchController = new SearchController(mDatabase, mSession, mChannelController, mUserListController);
+        mChannelController.setSearchController(mSearchController);
         
         // Affichage de la vue par défaut
         this.showLoginView();
