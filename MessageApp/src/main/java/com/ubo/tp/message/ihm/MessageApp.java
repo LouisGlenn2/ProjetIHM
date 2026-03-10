@@ -20,6 +20,7 @@ import com.ubo.tp.message.ihm.controller.SearchController;
 import com.ubo.tp.message.ihm.controller.SignupController;
 import com.ubo.tp.message.ihm.controller.UserEditController;
 import com.ubo.tp.message.ihm.controller.UserListController;
+import com.ubo.tp.message.ihm.composant.NotificationListView;
 
 /**
  * Classe principale de l'application gérant la navigation et les sessions.
@@ -76,6 +77,7 @@ public class MessageApp implements ISessionObserver {
         this.mMainView.setDeleteAccountCallback(this::handleDeleteAccount); // Ajout du callback
         this.mNavigationController = new NavigationController(mMainView);
         this.mMainView.setUpdateAccountCallback(this::showUserEditView);
+     
         
         // Initialisation des contrôleurs avec des callbacks de navigation
         this.mLoginController = new LoginController(mDatabase, mSession, this::showSignupView);
@@ -86,6 +88,9 @@ public class MessageApp implements ISessionObserver {
         mUserListController.setMessageController(mMessageController);
         this.mSearchController = new SearchController(mDatabase, mSession, mChannelController, mUserListController);
         mChannelController.setSearchController(mSearchController);
+        NotificationListView notifMgr = new NotificationListView(mMessageController);
+        mMainView.initNotificationManager(notifMgr);
+        mMessageController.setNotificationManager(notifMgr);
         
         // Affichage de la vue par défaut
         this.showLoginView();
@@ -176,13 +181,16 @@ public class MessageApp implements ISessionObserver {
     @Override
     public void notifyLogin(User connectedUser) {
         System.out.println("Utilisateur connecté : " + connectedUser.getUserTag());
+            if (this.mMessageController != null) {
+                this.mMessageController.loadMissedNotifications();
+            }
         showMainContent();
     }
 
     @Override
     public void notifyLogout() {
         System.out.println("Utilisateur déconnecté");
-        showLoginView(); // Redirige vers la page de connexion
+        showLoginView(); 
     }
 
     // --- Gestion du Répertoire ---
