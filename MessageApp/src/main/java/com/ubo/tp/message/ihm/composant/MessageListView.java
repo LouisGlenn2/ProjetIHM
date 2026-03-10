@@ -38,7 +38,9 @@ public class MessageListView extends JPanel {
         listContainer = new JPanel();
         listContainer.setLayout(new BoxLayout(listContainer, BoxLayout.Y_AXIS));
         listContainer.setBackground(new Color(245, 245, 245));
-        this.add(new JScrollPane(listContainer), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(listContainer);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        this.add(scrollPane, BorderLayout.CENTER);
 
         JPanel inputPanel = new JPanel(new BorderLayout());
         JTextField messageInput = new JTextField();
@@ -55,6 +57,7 @@ public class MessageListView extends JPanel {
             controller.sendMessage(messageInput.getText());
             messageInput.setText("");
         };
+        
         btnSend.addActionListener(sendAction);
         messageInput.addActionListener(sendAction);
 

@@ -7,7 +7,6 @@ import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 import com.ubo.tp.message.core.DataManager;
 import com.ubo.tp.message.core.database.IDatabase;
@@ -44,16 +43,24 @@ public class MessageController implements IDatabaseObserver {
     }
 
 
-
-    public void sendMessage(String text) {
-        if (text != null && !text.trim().isEmpty() && currentRecipient != null) {
+public void sendMessage(String text) {
+    if (text != null && !text.trim().isEmpty() && currentRecipient != null) {
+        if (text.length() <= 200) {
             User me = session.getConnectedUser();
             UUID recipientUUID = currentRecipient.getUuid();
             Message newMessage = new Message(me, recipientUUID, text);
+
             this.dataManager.sendMessage(newMessage);
             checkMentions(text);
+        } else {
+            // Affichage de la popup d'erreur
+            JOptionPane.showMessageDialog(null, 
+                "Les messages sont limités à 200 caractères", 
+                "Erreur de saisie", 
+                JOptionPane.ERROR_MESSAGE);
         }
     }
+}
 
     private void checkMentions(String text) {
         for (User user : database.getUsers()) {
