@@ -13,7 +13,10 @@ public class UserView extends JPanel {
     public UserView(User user) {
         this.setLayout(new BorderLayout());
         this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-        this.setPreferredSize(new Dimension(200, 100));
+        Dimension fixedSize = new Dimension(200, 100);
+        this.setPreferredSize(fixedSize);
+        this.setMinimumSize(fixedSize);
+        this.setMaximumSize(fixedSize);
 
         JLabel nameLabel = new JLabel(user.getName(), SwingConstants.CENTER);
         nameLabel.setFont(new Font("Arial", Font.BOLD, 14));

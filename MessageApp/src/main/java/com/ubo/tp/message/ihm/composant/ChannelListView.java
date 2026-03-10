@@ -19,7 +19,6 @@ public class ChannelListView extends JPanel {
         this.setLayout(new BorderLayout());
         this.setPreferredSize(new Dimension(200, 0));
 
-        // --- EN-TÊTE ---
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(new Color(230, 230, 230));
 
@@ -29,8 +28,6 @@ public class ChannelListView extends JPanel {
 
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         buttonsPanel.setOpaque(false);
-
-        // Bouton Recherche
         JButton btnSearch = new JButton("🔍");
         btnSearch.addActionListener(e -> {
             if (controller.getSearchController() != null) {
@@ -42,8 +39,6 @@ public class ChannelListView extends JPanel {
                 dialog.setVisible(true);
             }
         });
-
-        // Bouton Ajout
         JButton btnAdd = new JButton("+");
         btnAdd.setToolTipText("Créer un canal");
         btnAdd.addActionListener(e -> openCreationDialog());
@@ -62,28 +57,37 @@ public class ChannelListView extends JPanel {
         refresh();
     }
 
+
     private void openCreationDialog() {
-        String name = JOptionPane.showInputDialog(this, "Nom du nouveau canal :");
-        if (name != null && !name.trim().isEmpty()) {
-            List<User> allAppUsers = controller.getAllAvailableUsers(); 
-            List<User> selectedUsers = showUserSelectionDialog("Membres (vide = public)", allAppUsers, null);
-            if (selectedUsers != null) {
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        JTextField nameField = new JTextField();
+        JCheckBox privateBox = new JCheckBox("Canal privé (restreindre l'accès)");
+        panel.add(new JLabel("Nom du nouveau canal :"));
+        panel.add(nameField);
+        panel.add(privateBox);
+        int result = JOptionPane.showConfirmDialog(this, panel, "Nouveau Canal", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            String name = nameField.getText().trim();
+            if (!name.isEmpty()) {
+                List<User> selectedUsers = new ArrayList<>();
+                if (privateBox.isSelected()) {
+                    List<User> allAppUsers = controller.getAllAvailableUsers(); 
+                    selectedUsers = showUserSelectionDialog("Sélectionner les membres autorisés", allAppUsers, null);
+                    if (selectedUsers == null) return; 
+                }
                 controller.createChannel(name, selectedUsers);
             }
         }
     }
 
     /**
-     * Affiche la liste des utilisateurs avec sélection multiple par SIMPLE CLIC
+     * Affiche la liste des utilisateurs avec une barre de recherche et sélection multiple par SIMPLE CLIC
      */
     @SuppressWarnings("serial")
-	public List<User> showUserSelectionDialog(String title, List<User> allUsers, List<User> initialSelection) {
+    public List<User> showUserSelectionDialog(String title, List<User> allUsers, List<User> initialSelection) {
         DefaultListModel<User> model = new DefaultListModel<>();
         for (User u : allUsers) model.addElement(u);
-
         JList<User> userJList = new JList<>(model);
-        
-        // --- LOGIQUE DE SÉLECTION PAR SIMPLE CLIC (SANS CTRL) ---
         userJList.setSelectionModel(new DefaultListSelectionModel() {
             @Override
             public void setSelectionInterval(int index0, int index1) {
@@ -94,7 +98,6 @@ public class ChannelListView extends JPanel {
                 }
             }
         });
-
         userJList.setCellRenderer(new ListCellRenderer<User>() {
             private final JCheckBox checkbox = new JCheckBox();
             @Override
@@ -108,20 +111,35 @@ public class ChannelListView extends JPanel {
                 return checkbox;
             }
         });
-
-        // Pré-sélection
         if (initialSelection != null) {
-            List<Integer> indices = new ArrayList<>();
-            for (int i = 0; i < allUsers.size(); i++) {
-                if (initialSelection.contains(allUsers.get(i))) indices.add(i);
+            for (User u : initialSelection) {
+                userJList.getSelectionModel().addSelectionInterval(allUsers.indexOf(u), allUsers.indexOf(u));
             }
-            userJList.setSelectedIndices(indices.stream().mapToInt(i -> i).toArray());
         }
-
+        JTextField searchField = new JTextField();
+        searchField.setBorder(BorderFactory.createTitledBorder("Rechercher un utilisateur..."));
+        searchField.addCaretListener(e -> {
+            String filter = searchField.getText().toLowerCase();
+            List<User> selectedNow = userJList.getSelectedValuesList();
+            model.clear();
+            for (User u : allUsers) {
+                if (u.getUserTag().toLowerCase().contains(filter) || u.getName().toLowerCase().contains(filter)) {
+                    model.addElement(u);
+                }
+            }
+            for (User u : selectedNow) {
+                int index = model.indexOf(u);
+                if (index != -1) {
+                    userJList.addSelectionInterval(index, index);
+                }
+            }
+        });
+        JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
+        mainPanel.add(searchField, BorderLayout.NORTH);
         JScrollPane scrollPane = new JScrollPane(userJList);
         scrollPane.setPreferredSize(new Dimension(300, 400));
-        
-        int result = JOptionPane.showConfirmDialog(this, scrollPane, title, JOptionPane.OK_CANCEL_OPTION);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        int result = JOptionPane.showConfirmDialog(this, mainPanel, title, JOptionPane.OK_CANCEL_OPTION);
         return (result == JOptionPane.OK_OPTION) ? userJList.getSelectedValuesList() : null;
     }
 

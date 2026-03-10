@@ -37,7 +37,7 @@ public class UserListController implements IDatabaseObserver {
     private void refreshWithFilter() {
         List<User> membersToShow;
 
-        if (currentChannel == null) {
+        if (currentChannel == null ||currentChannel.getUsers() == null || currentChannel.getUsers().isEmpty()) {
             // Si rien n'est sélectionné, on affiche tous les utilisateurs de la DB
             membersToShow = new ArrayList<>(database.getUsers());
         } else {
