@@ -1,6 +1,7 @@
 package com.ubo.tp.message.ihm.controller;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -23,6 +24,9 @@ public class ChannelController implements IDatabaseObserver {
     private MessageController messageListController;
     private UserListController userListController;
     private SearchController searchController;
+    
+    private final Set<UUID> unreadChannels = new HashSet<>();
+    private UUID currentSelectedChannelUuid = null;
 
     public ChannelController(IDatabase database, DataManager data, ISession session) {
         this.database = database;
@@ -42,12 +46,22 @@ public class ChannelController implements IDatabaseObserver {
     	this.searchController = sc; 
     }
 
+    public boolean isUnread(UUID channelUuid) {
+        return unreadChannels.contains(channelUuid);
+    }
+
     public void selectChannel(Channel channel) {
+        this.currentSelectedChannelUuid = channel.getUuid();
+        this.unreadChannels.remove(channel.getUuid());
+        this.view.refresh();
+        
         if (userListController != null) userListController.updateViewForChannel(channel);
         if (messageListController != null) messageListController.setRecipient(channel);
     }
 
     public void selectUser(User user) {
+        this.currentSelectedChannelUuid = null;
+        
         if (messageListController != null) messageListController.setRecipient(user);
     }
 
@@ -75,7 +89,6 @@ public class ChannelController implements IDatabaseObserver {
         }else {
             System.out.println("Erreur, le channel ne vous appartiens pas");
         }
-        
     }
 
     public List<User> getAllAvailableUsers() {
@@ -100,7 +113,18 @@ public class ChannelController implements IDatabaseObserver {
     @Override public void notifyUserAdded(User u) { view.refresh(); }
     @Override public void notifyUserDeleted(User u) { view.refresh(); }
     @Override public void notifyUserModified(User u) { view.refresh(); }
-    @Override public void notifyMessageAdded(Message m) { view.refresh(); }
+    
+    @Override 
+    public void notifyMessageAdded(Message m) { 
+        if (m.getRecipient() != null && !m.getRecipient().equals(currentSelectedChannelUuid)) {
+            boolean isChannel = database.getChannels().stream().anyMatch(c -> c.getUuid().equals(m.getRecipient()));
+            if (isChannel) {
+                unreadChannels.add(m.getRecipient());
+            }
+        }
+        view.refresh(); 
+    }
+    
     @Override public void notifyMessageDeleted(Message m) { view.refresh(); }
     @Override public void notifyMessageModified(Message m) { view.refresh(); }
 }

@@ -15,6 +15,7 @@ public class ChannelView extends JPanel {
     private final Color idleColor = new Color(248, 249, 250);
     private final Color hoverColor = new Color(232, 240, 254);
     private final Color activeTextColor = new Color(52, 73, 94);
+    private final Color notificationColor = new Color(231, 76, 60); // Couleur SRS-MAP-CHN-009
 
     public ChannelView(Channel channel, ChannelController controller) {
         this.setLayout(new BorderLayout(10, 0));
@@ -49,10 +50,30 @@ public class ChannelView extends JPanel {
         iconPanel.setPreferredSize(new Dimension(20, 30));
         this.add(iconPanel, BorderLayout.WEST);
 
+        JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        centerPanel.setOpaque(false);
+
         JLabel nameLabel = new JLabel(channel.getName());
         nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
         nameLabel.setForeground(activeTextColor);
-        this.add(nameLabel, BorderLayout.CENTER);
+        centerPanel.add(nameLabel);
+
+        if (controller.isUnread(channel.getUuid())) {
+            JPanel badge = new JPanel() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(notificationColor);
+                    g2.fillOval(0, 0, 8, 8);
+                    g2.dispose();
+                }
+            };
+            badge.setPreferredSize(new Dimension(8, 8));
+            badge.setOpaque(false);
+            centerPanel.add(badge);
+        }
+        this.add(centerPanel, BorderLayout.CENTER);
 
         if (channel.getCreator().equals(controller.getConnectedUser())) {
             JPanel actionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
