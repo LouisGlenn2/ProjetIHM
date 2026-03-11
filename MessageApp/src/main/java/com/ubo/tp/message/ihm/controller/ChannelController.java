@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.awt.*; // Import nécessaire pour SystemTray et TrayIcon
 
 import com.ubo.tp.message.core.DataManager;
 import com.ubo.tp.message.core.database.IDatabase;
@@ -36,14 +37,43 @@ public class ChannelController implements IDatabaseObserver {
         this.database.addObserver(this);
     }
 
+    /**
+     * Envoie une notification système (Windows Toast).
+     */
+    private void sendWindowsNotification(String title, String text) {
+        if (!SystemTray.isSupported()) return;
+
+        try {
+            SystemTray tray = SystemTray.getSystemTray();
+            
+            // Création d'une icône par défaut pour la notification
+            Image image = Toolkit.getDefaultToolkit().createImage("icon.png"); 
+            TrayIcon trayIcon = new TrayIcon(image, "UBO Message");
+            trayIcon.setImageAutoSize(true);
+            
+            tray.add(trayIcon);
+            // Affiche le message système
+            trayIcon.displayMessage(title, text, TrayIcon.MessageType.INFO);
+            
+            // On retire l'icône du tray après 5 secondes pour ne pas polluer la barre des tâches
+            new Thread(() -> {
+                try { Thread.sleep(5000); } catch (InterruptedException e) {}
+                tray.remove(trayIcon);
+            }).start();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setUserListController(UserListController ulc) { 
-    	this.userListController = ulc; 
+        this.userListController = ulc; 
     }
     public void setMessageListController(MessageController mlc) {
-    	this.messageListController = mlc; 
+        this.messageListController = mlc; 
     }
     public void setSearchController(SearchController sc) {
-    	this.searchController = sc; 
+        this.searchController = sc; 
     }
 
     public boolean isUnread(UUID channelUuid) {
@@ -61,7 +91,6 @@ public class ChannelController implements IDatabaseObserver {
 
     public void selectUser(User user) {
         this.currentSelectedChannelUuid = null;
-        
         if (messageListController != null) messageListController.setRecipient(user);
     }
 
@@ -86,26 +115,25 @@ public class ChannelController implements IDatabaseObserver {
     public void deleteChannel(Channel channel, User user){
         if(channel.getCreator().equals(user)) {
             dataManager.deleteChannel(channel);
-        }else {
+        } else {
             System.out.println("Erreur, le channel ne vous appartiens pas");
         }
     }
 
-    public List<User> getAllAvailableUsers() {
-    	return new ArrayList<>(database.getUsers());
+    public void leaveChannel(Channel channel) {
+        User me = session.getConnectedUser();
+        if (me != null && channel != null) {
+            channel.removeUser(me);
+            dataManager.sendChannel(channel);
+            this.view.refresh();
+        }
     }
-    public Set<Channel> getChannels() { 
-    	return database.getChannels(); 
-    }
-    public User getConnectedUser() {
-    	return session.getConnectedUser(); 
-    }
-    public SearchController getSearchController() { 
-    	return searchController;
-    }
-    public ChannelListView getView() {
-    	return view; 
-    }
+
+    public List<User> getAllAvailableUsers() { return new ArrayList<>(database.getUsers()); }
+    public Set<Channel> getChannels() { return database.getChannels(); }
+    public User getConnectedUser() { return session.getConnectedUser(); }
+    public SearchController getSearchController() { return searchController; }
+    public ChannelListView getView() { return view; }
 
     @Override public void notifyChannelAdded(Channel c) { view.refresh(); }
     @Override public void notifyChannelDeleted(Channel c) { view.refresh(); }
@@ -116,26 +144,21 @@ public class ChannelController implements IDatabaseObserver {
     
     @Override 
     public void notifyMessageAdded(Message m) { 
-        if (m.getRecipient() != null && !m.getRecipient().equals(currentSelectedChannelUuid)) {
-            boolean isChannel = database.getChannels().stream().anyMatch(c -> c.getUuid().equals(m.getRecipient()));
-            if (isChannel) {
-                unreadChannels.add(m.getRecipient());
-            }
-        }
-        view.refresh(); 
-    }
-    public void leaveChannel(Channel channel) {
         User me = session.getConnectedUser();
-        if (me != null && channel != null) {
-            // Suppression de l'utilisateur dans l'objet métier
-            channel.removeUser(me);
+        if (me != null && !m.getSender().equals(me)) {
+            if (m.getRecipient() != null && !m.getRecipient().equals(currentSelectedChannelUuid)) {
+                boolean isChannel = database.getChannels().stream().anyMatch(c -> c.getUuid().equals(m.getRecipient()));
+                if (isChannel) {
+                    unreadChannels.add(m.getRecipient());
+                }
+            }
+            String preview = m.getText();
+            if (preview != null && preview.startsWith("IMG:")) preview = "[Image]";
             
-            // Notification au DataManager pour mettre à jour le fichier physique (.chn)
-            dataManager.sendChannel(channel);
-            
-            // Rafraîchissement de la vue
-            this.view.refresh();
+            sendWindowsNotification("Nouveau message de " + m.getSender().getName(), preview);
         }
+
+        view.refresh(); 
     }
     
     @Override public void notifyMessageDeleted(Message m) { view.refresh(); }
