@@ -124,6 +124,19 @@ public class ChannelController implements IDatabaseObserver {
         }
         view.refresh(); 
     }
+    public void leaveChannel(Channel channel) {
+        User me = session.getConnectedUser();
+        if (me != null && channel != null) {
+            // Suppression de l'utilisateur dans l'objet métier
+            channel.removeUser(me);
+            
+            // Notification au DataManager pour mettre à jour le fichier physique (.chn)
+            dataManager.sendChannel(channel);
+            
+            // Rafraîchissement de la vue
+            this.view.refresh();
+        }
+    }
     
     @Override public void notifyMessageDeleted(Message m) { view.refresh(); }
     @Override public void notifyMessageModified(Message m) { view.refresh(); }

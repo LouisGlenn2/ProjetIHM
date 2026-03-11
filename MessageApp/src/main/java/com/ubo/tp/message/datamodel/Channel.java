@@ -122,4 +122,14 @@ public class Channel extends AbstractMessageAppObject implements IMessageRecipie
 		return sb.toString();
 	}
 
+	public void removeUser(User user) {
+		if (user != null) {
+			this.mUsers.remove(user);
+			// Si le canal n'a plus d'utilisateurs spécifiques, il pourrait redevenir public 
+			// selon votre logique métier, mais ici on se contente de retirer l'UUID.
+			if (this.mUsers.isEmpty()) {
+				this.mPrivate = false;
+			}
+		}
+	}
 }

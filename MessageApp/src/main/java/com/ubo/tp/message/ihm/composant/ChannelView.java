@@ -1,12 +1,26 @@
 package com.ubo.tp.message.ihm.composant;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
+
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
 import com.ubo.tp.message.datamodel.Channel;
+import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.controller.ChannelController;
 
 public class ChannelView extends JPanel {
@@ -15,7 +29,7 @@ public class ChannelView extends JPanel {
     private final Color idleColor = new Color(248, 249, 250);
     private final Color hoverColor = new Color(232, 240, 254);
     private final Color activeTextColor = new Color(52, 73, 94);
-    private final Color notificationColor = new Color(231, 76, 60); // Couleur SRS-MAP-CHN-009
+    private final Color notificationColor = new Color(231, 76, 60);
 
     public ChannelView(Channel channel, ChannelController controller) {
         this.setLayout(new BorderLayout(10, 0));
@@ -25,8 +39,8 @@ public class ChannelView extends JPanel {
         this.setBorder(new EmptyBorder(5, 10, 5, 10));
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
+        // --- SECTION GAUCHE : ICONE ---
         boolean isPrivate = channel.getUsers() != null && !channel.getUsers().isEmpty();
-        
         JPanel iconPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -50,6 +64,7 @@ public class ChannelView extends JPanel {
         iconPanel.setPreferredSize(new Dimension(20, 30));
         this.add(iconPanel, BorderLayout.WEST);
 
+        // --- SECTION CENTRALE : NOM ET BADGE ---
         JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         centerPanel.setOpaque(false);
 
@@ -75,10 +90,14 @@ public class ChannelView extends JPanel {
         }
         this.add(centerPanel, BorderLayout.CENTER);
 
-        if (channel.getCreator().equals(controller.getConnectedUser())) {
-            JPanel actionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-            actionsPanel.setOpaque(false);
+        // --- SECTION DROITE : ACTIONS (EDIT/DELETE OU LEAVE) ---
+        JPanel actionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        actionsPanel.setOpaque(false);
 
+        User currentUser = controller.getConnectedUser();
+        
+        if (channel.getCreator().equals(currentUser)) {
+            // Bouton Editer (uniquement créateur)
             JLabel btnEdit = new JLabel("✎");
             btnEdit.setForeground(new Color(189, 195, 199));
             btnEdit.addMouseListener(new MouseAdapter() {
@@ -90,6 +109,7 @@ public class ChannelView extends JPanel {
                 public void mouseExited(MouseEvent e) { btnEdit.setForeground(new Color(189, 195, 199)); }
             });
 
+            // Bouton Supprimer (uniquement créateur)
             JLabel btnDelete = new JLabel("✕");
             btnDelete.setForeground(new Color(189, 195, 199));
             btnDelete.addMouseListener(new MouseAdapter() {
@@ -97,7 +117,7 @@ public class ChannelView extends JPanel {
                 public void mouseClicked(MouseEvent e) {
                     int choice = JOptionPane.showConfirmDialog(null, "Supprimer " + channel.getName() + " ?", "Confirmation", JOptionPane.YES_NO_OPTION);
                     if (choice == JOptionPane.YES_OPTION) { 
-                    	 controller.deleteChannel(channel, channel.getCreator());
+                         controller.deleteChannel(channel, channel.getCreator());
                     }
                 }
                 @Override
@@ -108,9 +128,36 @@ public class ChannelView extends JPanel {
 
             actionsPanel.add(btnEdit);
             actionsPanel.add(btnDelete);
-            this.add(actionsPanel, BorderLayout.EAST);
+        } else {
+            // Bouton Quitter (uniquement membres non-créateurs)
+            JLabel btnLeave = new JLabel("logout");
+            btnLeave.setToolTipText("Quitter le channel");
+            btnLeave.setForeground(new Color(189, 195, 199));
+            
+            btnLeave.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    int choice = JOptionPane.showConfirmDialog(
+                        null, 
+                        "Voulez-vous vraiment quitter le canal " + channel.getName() + " ?", 
+                        "Quitter le canal", 
+                        JOptionPane.YES_NO_OPTION
+                    );
+                    if (choice == JOptionPane.YES_OPTION) {
+                        controller.leaveChannel(channel);
+                    }
+                }
+                @Override
+                public void mouseEntered(MouseEvent e) { btnLeave.setForeground(new Color(230, 126, 34)); } // Orange
+                @Override
+                public void mouseExited(MouseEvent e) { btnLeave.setForeground(new Color(189, 195, 199)); }
+            });
+            actionsPanel.add(btnLeave);
         }
 
+        this.add(actionsPanel, BorderLayout.EAST);
+
+        // --- INTERACTION CLIC SUR LA LIGNE ---
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) { controller.selectChannel(channel); }
