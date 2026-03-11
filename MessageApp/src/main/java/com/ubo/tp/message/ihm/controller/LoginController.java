@@ -4,6 +4,8 @@ package com.ubo.tp.message.ihm.controller;
 
 import java.util.Set;
 
+import com.ubo.tp.message.core.DataManager;
+import com.ubo.tp.message.core.DataManager;
 import com.ubo.tp.message.core.database.IDatabase;
 import com.ubo.tp.message.core.session.Session;
 import com.ubo.tp.message.datamodel.User;
@@ -15,12 +17,14 @@ public class LoginController {
     private final IDatabase database;
     private final Session session;
 	private Runnable onNavigateToSignup;
+    private final DataManager mDataManager;
 
-    public LoginController(IDatabase database, Session session, Runnable onNavigateToSignup) {
+    public LoginController(IDatabase database, Session session, Runnable onNavigateToSignup, DataManager mDataManager) {
         this.database = database;
         this.session = session;
         this.onNavigateToSignup = onNavigateToSignup;
         this.loginView = new LoginView(this);
+        this.mDataManager = mDataManager;
     }
 
   
@@ -32,7 +36,9 @@ public class LoginController {
             return;
         }
         userInDb.setOnline(true); 
+        mDataManager.sendUser(userInDb);
         session.connect(userInDb);
+
     }
 
     private User searchUser(User user) {

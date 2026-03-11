@@ -87,6 +87,7 @@ public class LoginView extends JPanel {
                 g2.dispose();
             }
         };
+        
         styleButton(btnLogin, true);
         gbc.gridy = 5;
         gbc.insets = new Insets(25, 0, 5, 0);

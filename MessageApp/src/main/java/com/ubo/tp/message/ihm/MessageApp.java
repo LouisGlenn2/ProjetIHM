@@ -68,19 +68,15 @@ public class MessageApp implements ISessionObserver {
         System.out.println("Logger initialisé.");
     }
 
-    /**
-     * Initialise l'interface et les contrôleurs de navigation.
-     */
     protected void initGui() {
         this.mMainView = new MessageAppMainView();
         this.mMainView.setLogoutCallback(this::handleLogout);
-        this.mMainView.setDeleteAccountCallback(this::handleDeleteAccount); // Ajout du callback
+        this.mMainView.setDeleteAccountCallback(this::handleDeleteAccount);
         this.mNavigationController = new NavigationController(mMainView);
         this.mMainView.setUpdateAccountCallback(this::showUserEditView);
      
         
-        // Initialisation des contrôleurs avec des callbacks de navigation
-        this.mLoginController = new LoginController(mDatabase, mSession, this::showSignupView);
+        this.mLoginController = new LoginController(mDatabase, mSession, this::showSignupView, mDataManager);
         this.mSignupController = new SignupController(mDatabase,mDataManager, this::showLoginView);
         this.mMessageController=new MessageController(mDatabase,mDataManager, mSession);
         this.mChannelController = new ChannelController(mDatabase,mDataManager,mSession);
@@ -91,8 +87,7 @@ public class MessageApp implements ISessionObserver {
         NotificationListView notifMgr = new NotificationListView(mMessageController);
         mMainView.initNotificationManager(notifMgr);
         mMessageController.setNotificationManager(notifMgr);
-        
-        // Affichage de la vue par défaut
+
         this.showLoginView();
         this.mMainView.showGUI();
     }
@@ -105,14 +100,12 @@ public class MessageApp implements ISessionObserver {
         User currentUser = mSession.getConnectedUser();
         if (currentUser != null) {
             currentUser.setOnline(false);
+            this.mDataManager.sendUser(currentUser);
         }
+        
         mSession.disconnect(); 
-        // mMainView.setContent(mLoginView);
     }
 
-    /**
-     * Affiche la vue de modification du profil.
-     */
     private void showUserEditView() {
         this.mUserEditController = new UserEditController(mDataManager, mSession, this::showMainContent);
         mNavigationController.showPage(mUserEditController.getView());

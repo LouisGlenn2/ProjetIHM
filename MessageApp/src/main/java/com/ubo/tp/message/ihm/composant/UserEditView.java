@@ -1,9 +1,27 @@
 package com.ubo.tp.message.ihm.composant;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.awt.geom.RoundRectangle2D;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+
 import com.ubo.tp.message.ihm.controller.UserEditController;
 
 public class UserEditView extends JPanel {
@@ -68,9 +86,6 @@ public class UserEditView extends JPanel {
         add(buttonPanel, gbc);
     }
 
-    /**
-     * Crée un bouton stylisé avec des bords arrondis et des effets de couleur.
-     */
     private JButton createStyledButton(String text, boolean isPrimary) {
         JButton btn = new JButton(text) {
             @Override

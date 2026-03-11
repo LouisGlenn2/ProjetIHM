@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.swing.SwingUtilities;
 
 import com.ubo.tp.message.core.database.IDatabase;
@@ -25,9 +26,6 @@ public class UserListController implements IDatabaseObserver {
         this.database.addObserver(this);
     }
 
-    /**
-     * Appelé par le ChannelController lors d'un clic sur un canal
-     */
     public void updateViewForChannel(Channel channel) {
         this.currentChannel = channel;
         this.refreshWithFilter();
