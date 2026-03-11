@@ -138,7 +138,9 @@ public class MessageController implements IDatabaseObserver {
     public void setNotificationManager(NotificationListView nm) { 
     	this.notificationListView = nm; 
     }
-    
+    public List<User> getUsers() {
+        return new ArrayList<>(this.database.getUsers());
+    }
     @Override 
     public void notifyMessageAdded(Message m) {
         this.view.refresh();

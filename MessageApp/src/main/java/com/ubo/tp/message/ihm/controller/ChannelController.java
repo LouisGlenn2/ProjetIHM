@@ -45,17 +45,11 @@ public class ChannelController implements IDatabaseObserver {
 
         try {
             SystemTray tray = SystemTray.getSystemTray();
-            
-            // Création d'une icône par défaut pour la notification
             Image image = Toolkit.getDefaultToolkit().createImage("icon.png"); 
             TrayIcon trayIcon = new TrayIcon(image, "UBO Message");
             trayIcon.setImageAutoSize(true);
-            
             tray.add(trayIcon);
-            // Affiche le message système
             trayIcon.displayMessage(title, text, TrayIcon.MessageType.INFO);
-            
-            // On retire l'icône du tray après 5 secondes pour ne pas polluer la barre des tâches
             new Thread(() -> {
                 try { Thread.sleep(5000); } catch (InterruptedException e) {}
                 tray.remove(trayIcon);
@@ -145,20 +139,44 @@ public class ChannelController implements IDatabaseObserver {
     @Override 
     public void notifyMessageAdded(Message m) { 
         User me = session.getConnectedUser();
+        
         if (me != null && !m.getSender().equals(me)) {
-            if (m.getRecipient() != null && !m.getRecipient().equals(currentSelectedChannelUuid)) {
-                boolean isChannel = database.getChannels().stream().anyMatch(c -> c.getUuid().equals(m.getRecipient()));
-                if (isChannel) {
-                    unreadChannels.add(m.getRecipient());
-                }
-            }
-            String preview = m.getText();
-            if (preview != null && preview.startsWith("IMG:")) preview = "[Image]";
             
-            sendWindowsNotification("Nouveau message de " + m.getSender().getName(), preview);
-        }
+            boolean shouldNotify = false;
+            String preview = m.getText();
+            UUID recipientUuid = m.getRecipient();
 
-        view.refresh(); 
+            boolean isChannel = database.getChannels().stream()
+                    .anyMatch(c -> c.getUuid().equals(recipientUuid));
+
+            if (isChannel) {
+                boolean isMember = database.getChannels().stream()
+                    .anyMatch(c -> c.getUuid().equals(recipientUuid) && 
+                              (c.getUsers().isEmpty() || c.getUsers().contains(me) || c.getCreator().equals(me)));
+                
+                if (isMember) {
+                    shouldNotify = true;
+                    if (!recipientUuid.equals(currentSelectedChannelUuid)) {
+                        unreadChannels.add(recipientUuid);
+                    }
+                }
+            } 
+            else if (recipientUuid != null && recipientUuid.equals(me.getUuid())) {
+                shouldNotify = true;
+            }
+
+            if (preview != null && preview.contains("@" + me.getUserTag())) {
+                shouldNotify = true;
+            }
+            if (shouldNotify) {
+                String title = "Nouveau message de " + m.getSender().getName();
+                String content = (preview != null && preview.startsWith("IMG:")) ? "📷 Image" : preview;
+                
+                sendWindowsNotification(title, content);
+            }
+        }
+        
+        view.refresh();
     }
     
     @Override public void notifyMessageDeleted(Message m) { view.refresh(); }
