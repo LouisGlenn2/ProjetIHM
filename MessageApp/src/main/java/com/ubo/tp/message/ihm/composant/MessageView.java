@@ -18,7 +18,8 @@ public class MessageView extends JPanel {
         this.isMe = ownMessage;
         this.setLayout(new BorderLayout());
         this.setOpaque(false);
-        this.setBorder(new EmptyBorder(5, isMe ? 60 : 10, 5, isMe ? 10 : 60));
+        
+        this.setBorder(new EmptyBorder(2, isMe ? 80 : 10, 2, isMe ? 10 : 80));
 
         JPanel bubble = new JPanel(new GridBagLayout()) {
             @Override
@@ -34,16 +35,19 @@ public class MessageView extends JPanel {
         bubble.setBorder(new EmptyBorder(10, 14, 10, 14));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
         gbc.gridx = 0;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = isMe ? GridBagConstraints.EAST : GridBagConstraints.WEST;
 
+        // 1. AUTEUR
         JLabel authorLabel = new JLabel(isMe ? "Moi" : message.getSender().getName());
         authorLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
         authorLabel.setForeground(isMe ? new Color(200, 230, 255) : new Color(0, 102, 204));
         gbc.gridy = 0;
         bubble.add(authorLabel, gbc);
 
+        // 2. CONTENU
         String rawText = message.getText();
         gbc.gridy = 1;
         gbc.insets = new Insets(5, 0, 5, 0);
@@ -52,45 +56,32 @@ public class MessageView extends JPanel {
             String payload = rawText.substring(4);
             String imagePath = payload;
             String textContent = "";
-
             if (payload.contains("|")) {
                 int separator = payload.indexOf("|");
                 imagePath = payload.substring(0, separator);
                 textContent = payload.substring(separator + 1);
             }
-
             try {
                 ImageIcon icon = new ImageIcon(imagePath);
                 Image img = icon.getImage();
                 int newW = 250;
                 int newH = (img.getHeight(null) * newW) / img.getWidth(null);
-                
                 JLabel imageLabel = new JLabel(new ImageIcon(img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH)));
                 bubble.add(imageLabel, gbc);
             } catch (Exception e) {
-                bubble.add(new JLabel("Impossible de charger l'image"), gbc);
+                bubble.add(new JLabel("Image non disponible"), gbc);
             }
-
             if (!textContent.isEmpty()) {
-                gbc.gridy = 2; 
-                gbc.insets = new Insets(8, 0, 2, 0);
-                String formatted = textContent.replaceAll("(@\\w+)", "<b style='color: #FFD700;'>$1</b>");
-                JLabel label = new JLabel("<html><p style='width: 250px'>" + formatted + "</p></html>");
-                label.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-                label.setForeground(isMe ? Color.WHITE : Color.BLACK);
-                bubble.add(label, gbc);
+                gbc.gridy = 2;
+                addTextToBubble(textContent, bubble, gbc);
             }
         } else {
-            String formatted = rawText.replaceAll("(@\\w+)", "<b style='color: #FFD700;'>$1</b>");
-            JLabel label = new JLabel("<html><p style='width: 250px'>" + formatted + "</p></html>");
-            label.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-            label.setForeground(isMe ? Color.WHITE : Color.BLACK);
-            bubble.add(label, gbc);
+            addTextToBubble(rawText, bubble, gbc);
         }
 
+        // 3. FOOTER
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         footer.setOpaque(false);
-        
         JLabel timeLabel = new JLabel(dateFormat.format(new Date(message.getEmissionDate())));
         timeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 10));
         timeLabel.setForeground(isMe ? new Color(210, 230, 255) : Color.GRAY);
@@ -101,19 +92,31 @@ public class MessageView extends JPanel {
             btnDel.setContentAreaFilled(false);
             btnDel.setBorderPainted(false);
             btnDel.setForeground(new Color(255, 150, 150));
-            btnDel.setCursor(new Cursor(Cursor.HAND_CURSOR));
             btnDel.addActionListener(e -> {
-                if (JOptionPane.showConfirmDialog(this, "Supprimer ce message ?") == JOptionPane.YES_OPTION) {
+                if (JOptionPane.showConfirmDialog(this, "Supprimer?") == JOptionPane.YES_OPTION) {
                     controller.deleteMessage(message);
                 }
             });
             footer.add(btnDel);
         }
-
-        gbc.gridy = 3; 
-        gbc.insets = new Insets(2, 0, 0, 0);
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.EAST;
         bubble.add(footer, gbc);
 
-        this.add(bubble, isMe ? BorderLayout.EAST : BorderLayout.WEST);
+        JPanel alignPanel = new JPanel(new FlowLayout(isMe ? FlowLayout.RIGHT : FlowLayout.LEFT, 0, 0));
+        alignPanel.setOpaque(false);
+        alignPanel.add(bubble);
+        
+        this.add(alignPanel, BorderLayout.CENTER);
+        this.setMaximumSize(new Dimension(Integer.MAX_VALUE, this.getPreferredSize().height));
+    }
+
+    private void addTextToBubble(String text, JPanel bubble, GridBagConstraints gbc) {
+        String formatted = text.replaceAll("(@\\w+)", "<b style='color: #FFD700;'>$1</b>");
+        String widthConstraint = text.length() > 40 ? "width: 250px" : "";
+        JLabel label = new JLabel("<html><p style='" + widthConstraint + "'>" + formatted + "</p></html>");
+        label.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        label.setForeground(isMe ? Color.WHITE : Color.BLACK);
+        bubble.add(label, gbc);
     }
 }

@@ -112,18 +112,30 @@ public class MessageListView extends JPanel {
             public void focusLost(FocusEvent e) { if(field.getText().isEmpty()) { field.setText(placeholder); field.setForeground(Color.GRAY); }}
         });
     }
+    private void scrollToBottom() {
+        SwingUtilities.invokeLater(() -> {
+            JScrollBar vertical = scrollPane.getVerticalScrollBar();
+            vertical.setValue(vertical.getMaximum());
+        });
+    }
 
     public void setFilter(String q) { this.currentFilter = q; refresh(); }
     public void refresh() {
-        listContainer.removeAll();
-        List<Message> msgs = controller.getFilteredMessages(currentFilter);
-        if (msgs != null) {
-            for (Message m : msgs) {
-                listContainer.add(new MessageView(m, controller.isOwnMessage(m), controller));
-                listContainer.add(Box.createRigidArea(new Dimension(0, 8)));
+    	listContainer.removeAll(); 
+        
+        List<Message> messages = controller.getFilteredMessages(currentFilter);
+        if (messages != null) {
+            for (Message m : messages) {
+                MessageView mview = new MessageView(m, controller.isOwnMessage(m), controller);
+                listContainer.add(mview);
+                listContainer.add(Box.createRigidArea(new Dimension(0, 8))); 
             }
         }
-        listContainer.revalidate(); listContainer.repaint();
-        SwingUtilities.invokeLater(() -> scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum()));
+        
+        listContainer.add(Box.createVerticalGlue());
+        
+        listContainer.revalidate();
+        listContainer.repaint();
+        scrollToBottom();
     }
 }
