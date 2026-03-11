@@ -14,29 +14,30 @@ public class MessageListView extends JPanel {
     private final JPanel listContainer;
     private final JScrollPane scrollPane;
     private String currentFilter = "";
-    private String selectedImagePath = null; // Stockage temporaire de l'image
+    private String selectedImagePath = null; 
 
     public MessageListView(MessageController controller) {
         this.controller = controller;
         this.setLayout(new BorderLayout());
         this.setBackground(new Color(240, 242, 245));
 
-        // --- 1. RECHERCHE ---
         JTextField searchField = new JTextField();
         setupPlaceholder(searchField, "Rechercher un message...");
         searchField.setPreferredSize(new Dimension(0, 40));
         searchField.addCaretListener(e -> setFilter(searchField.getText().equals("Rechercher un message...") ? "" : searchField.getText()));
         this.add(searchField, BorderLayout.NORTH);
 
-        // --- 2. LISTE ---
         listContainer = new JPanel();
         listContainer.setLayout(new BoxLayout(listContainer, BoxLayout.Y_AXIS));
         listContainer.setBackground(new Color(240, 242, 245));
         scrollPane = new JScrollPane(listContainer);
+        scrollPane.setOpaque(false);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16); 
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
         scrollPane.setBorder(null);
         this.add(scrollPane, BorderLayout.CENTER);
-
-        // --- 3. BARRE D'ENVOI ---
+        
         JPanel inputContainer = new JPanel(new BorderLayout(10, 0));
         inputContainer.setBackground(Color.WHITE);
         inputContainer.setBorder(new EmptyBorder(10, 15, 10, 15));
@@ -44,7 +45,6 @@ public class MessageListView extends JPanel {
         JTextField messageInput = new JTextField();
         setupPlaceholder(messageInput, "Écrire un message...");
 
-        // Bouton Image : il ne fait que SELECTIONNER
         JButton btnAttach = new JButton("📷");
         btnAttach.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnAttach.addActionListener(e -> {
@@ -52,14 +52,12 @@ public class MessageListView extends JPanel {
             chooser.setFileFilter(new FileNameExtensionFilter("Images", "jpg", "png", "gif"));
             if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 this.selectedImagePath = chooser.getSelectedFile().getAbsolutePath();
-                messageInput.setText(""); // On vide pour laisser l'utilisateur écrire sa légende
+                messageInput.setText(""); 
                 messageInput.requestFocus();
-                // Petit indicateur visuel (optionnel)
                 messageInput.setBorder(BorderFactory.createLineBorder(new Color(0, 132, 255), 2));
             }
         });
 
-        // Bouton Envoyer : il VALIDE l'envoi (Image + Texte)
         JButton btnSend = new JButton() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -85,7 +83,6 @@ public class MessageListView extends JPanel {
                 } else {
                     controller.sendMessage(text);
                 }
-                // Reset
                 selectedImagePath = null;
                 messageInput.setText("");
                 messageInput.setBorder(UIManager.getBorder("TextField.border"));

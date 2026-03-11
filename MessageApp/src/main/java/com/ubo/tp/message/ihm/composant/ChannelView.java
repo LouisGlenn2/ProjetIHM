@@ -74,8 +74,10 @@ public class ChannelView extends JPanel {
             btnDelete.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    int choice = JOptionPane.showConfirmDialog(null, "Supprimer " + channel.getName() + " ?");
-                    if (choice == JOptionPane.YES_OPTION) { /* controller.deleteChannel(channel); */ }
+                    int choice = JOptionPane.showConfirmDialog(null, "Supprimer " + channel.getName() + " ?", "Confirmation", JOptionPane.YES_NO_OPTION);
+                    if (choice == JOptionPane.YES_OPTION) { 
+                    	 controller.deleteChannel(channel, channel.getCreator());
+                    }
                 }
                 @Override
                 public void mouseEntered(MouseEvent e) { btnDelete.setForeground(Color.RED); }
