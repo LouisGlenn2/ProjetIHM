@@ -109,7 +109,6 @@ public class MessageView extends JPanel {
             btnDel.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(this, "Supprimer le message ?", "Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     controller.deleteMessage(message);
-                    // Logique de suppression
                 }
             });
             footer.add(btnDel);

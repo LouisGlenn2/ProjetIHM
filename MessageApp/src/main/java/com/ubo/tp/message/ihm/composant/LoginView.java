@@ -1,10 +1,28 @@
 package com.ubo.tp.message.ihm.composant;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.awt.geom.RoundRectangle2D;
 import java.util.UUID;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.controller.LoginController;
 
@@ -43,7 +61,7 @@ public class LoginView extends JPanel {
         gbc.gridwidth = 2; 
         gbc.insets = new Insets(5, 0, 5, 0);
 
-        addLabel(gbc, "Nom d'utilisateur", 1);
+        addLabel(gbc, "Tag d'utilisateur", 1);
         mTagField = createStyledTextField();
         gbc.gridy = 2;
         add(mTagField, gbc);
