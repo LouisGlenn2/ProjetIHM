@@ -1,11 +1,28 @@
 package com.ubo.tp.message.ihm.composant;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.awt.geom.RoundRectangle2D;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.swing.*;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.ihm.controller.MessageController;
 
@@ -40,14 +57,12 @@ public class MessageView extends JPanel {
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = isMe ? GridBagConstraints.EAST : GridBagConstraints.WEST;
 
-        // 1. AUTEUR
         JLabel authorLabel = new JLabel(isMe ? "Moi" : message.getSender().getName());
         authorLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
         authorLabel.setForeground(isMe ? new Color(200, 230, 255) : new Color(0, 102, 204));
         gbc.gridy = 0;
         bubble.add(authorLabel, gbc);
 
-        // 2. CONTENU
         String rawText = message.getText();
         gbc.gridy = 1;
         gbc.insets = new Insets(5, 0, 5, 0);
@@ -79,7 +94,6 @@ public class MessageView extends JPanel {
             addTextToBubble(rawText, bubble, gbc);
         }
 
-        // 3. FOOTER
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         footer.setOpaque(false);
         JLabel timeLabel = new JLabel(dateFormat.format(new Date(message.getEmissionDate())));
@@ -93,8 +107,9 @@ public class MessageView extends JPanel {
             btnDel.setBorderPainted(false);
             btnDel.setForeground(new Color(255, 150, 150));
             btnDel.addActionListener(e -> {
-                if (JOptionPane.showConfirmDialog(this, "Supprimer?") == JOptionPane.YES_OPTION) {
+                if (JOptionPane.showConfirmDialog(this, "Supprimer le message ?", "Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     controller.deleteMessage(message);
+                    // Logique de suppression
                 }
             });
             footer.add(btnDel);
