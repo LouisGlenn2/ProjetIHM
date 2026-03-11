@@ -30,16 +30,29 @@ public class ChannelListView extends JPanel {
         title.setForeground(new Color(149, 165, 166));
         headerPanel.add(title, BorderLayout.WEST);
 
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        buttonsPanel.setOpaque(false);
+
+        JButton btnSearch = new JButton("🔍");
+        btnSearch.setContentAreaFilled(false);
+        btnSearch.setBorderPainted(false);
+        btnSearch.setFocusPainted(false);
+        btnSearch.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnSearch.addActionListener(e -> openSearchDialog());
+
         JButton btnAdd = new JButton("+");
-        btnAdd.setFont(new Font("Arial", Font.BOLD, 18));
-        btnAdd.setFocusPainted(false);
-        btnAdd.setBorderPainted(false);
+        btnAdd.setFont(new Font("Arial", Font.BOLD, 20));
         btnAdd.setContentAreaFilled(false);
+        btnAdd.setBorderPainted(false);
+        btnAdd.setFocusPainted(false);
         btnAdd.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnAdd.setToolTipText("Créer un nouveau canal");
         btnAdd.addActionListener(e -> openCreationDialog());
-        headerPanel.add(btnAdd, BorderLayout.EAST);
 
+        buttonsPanel.add(btnSearch);
+        buttonsPanel.add(btnAdd);
+        
+        headerPanel.add(buttonsPanel, BorderLayout.EAST);
         this.add(headerPanel, BorderLayout.NORTH);
 
         listPanel = new JPanel();
@@ -53,6 +66,17 @@ public class ChannelListView extends JPanel {
         this.add(scrollPane, BorderLayout.CENTER);
 
         refresh();
+    }
+
+    private void openSearchDialog() {
+        if (controller.getSearchController() != null) {
+            SearchView searchView = new SearchView(this.controller.getSearchController());
+            JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Recherche", true);
+            dialog.add(searchView);
+            dialog.pack();
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+        }
     }
 
     private void openCreationDialog() {
@@ -79,6 +103,7 @@ public class ChannelListView extends JPanel {
         }
     }
 
+    
     public List<User> showUserSelectionDialog(String title, List<User> allUsers, List<User> initialSelection) {
         DefaultListModel<User> model = new DefaultListModel<>();
         allUsers.forEach(model::addElement);
@@ -122,6 +147,7 @@ public class ChannelListView extends JPanel {
     private JTextField createSearchField(JList<User> userJList, DefaultListModel<User> model, List<User> allUsers) {
         JTextField searchField = new JTextField();
         searchField.setBorder(BorderFactory.createTitledBorder("Rechercher..."));
+        searchField.setToolTipText("Rechercher utilisateurs avec @");;
         searchField.addCaretListener(e -> {
             String filter = searchField.getText().toLowerCase();
             List<User> selectedNow = userJList.getSelectedValuesList();
